@@ -1,3 +1,5 @@
+package model;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -7,39 +9,31 @@
  *
  * @author carol
  */
-public class AnimalAquaticoPreHistorico extends AnimalPreHistorico {
-    private int dificuldadeContencaoAquatica;
+public class AnimalTerrestrePreHistorico extends AnimalPreHistorico {
+    private int forcaFisica;
     
-    public AnimalAquaticoPreHistorico(
+    public AnimalTerrestrePreHistorico(
         String codigo,
         String nome,
         String especie,
         Dieta dieta,
         Porte porte,
-        int dificuldadeContencaoAquatica
+        int forcaFisica
     ){
         super(codigo, nome, especie, dieta, porte);
-        setDificuldadeContencaoAquatica(dificuldadeContencaoAquatica);
+        setForcaFisica(forcaFisica);
     }
     
-    public int getDificuldadeContencaoAquatica() {
-        return this.dificuldadeContencaoAquatica;
+    public int getForcaFisica() {
+        return this.forcaFisica;
     }
     
-    public void setDificuldadeContencaoAquatica(
-        int dificuldadeContencaoAquatica
-    ) {
-        if (
-            dificuldadeContencaoAquatica >= 0 &&
-            dificuldadeContencaoAquatica <= 10
-        ) {
-            this.dificuldadeContencaoAquatica =
-                dificuldadeContencaoAquatica;
+    public void setForcaFisica(int forcaFisica) {
+        if (forcaFisica >= 0 && forcaFisica <= 10) {
+            this.forcaFisica = forcaFisica;
         }
         else {
-            System.out.println(
-                "Dificuldade de contencao aquatica invalida!"
-            );
+            System.out.println("forca fisica invalida!");
     }
     }
     
@@ -47,7 +41,7 @@ public class AnimalAquaticoPreHistorico extends AnimalPreHistorico {
     public GrauPerigo calcularGrauPerigo() {
         int pontuacao = 0;
         if (getPorte() == Porte.GRANDE) {
-            pontuacao += 4;
+            pontuacao += 3;
         }
         else if (getPorte() == Porte.MEDIO) {
             pontuacao += 2;
@@ -64,7 +58,7 @@ public class AnimalAquaticoPreHistorico extends AnimalPreHistorico {
         else {
             pontuacao += 1;
         }
-        pontuacao += this.dificuldadeContencaoAquatica;
+        pontuacao += this.forcaFisica;
         if (pontuacao <= 4) {
             return GrauPerigo.BAIXO;
         }

@@ -1,3 +1,5 @@
+package model;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -11,35 +13,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class Jaula extends Estrutura {
+public abstract class Jaula {
 
-    private Cuidador cuidadorResponsavel;
+    private String numeracao;
     private ArrayList<AnimalPreHistorico> animaisAlocados;
     private int capacidade;
     private NivelSeguranca nivelSeguranca;
 
     public Jaula(
         String numeracao,
-        int numeroFuncionariosResponsaveis,
-        Cuidador cuidadorResponsavel,
         int capacidade,
         NivelSeguranca nivelSeguranca
     ) {
-        super(numeracao, numeroFuncionariosResponsaveis);
-
         this.animaisAlocados = new ArrayList<>();
 
-        setCuidadorResponsavel(cuidadorResponsavel);
+        setNumeracao(numeracao);
         setCapacidade(capacidade);
         setNivelSeguranca(nivelSeguranca);
     }
 
-    public Cuidador getCuidadorResponsavel() {
-        return this.cuidadorResponsavel;
+    public String getNumeracao() {
+        return this.numeracao;
     }
 
     public List<AnimalPreHistorico> getAnimaisAlocados() {
-        return Collections.unmodifiableList(this.animaisAlocados);
+        return Collections.unmodifiableList(new ArrayList<>(this.animaisAlocados));
     }
 
     public int getCapacidade() {
@@ -50,12 +48,12 @@ public abstract class Jaula extends Estrutura {
         return this.nivelSeguranca;
     }
 
-    public void setCuidadorResponsavel(Cuidador cuidadorResponsavel) {
-        if (cuidadorResponsavel == null) {
-            System.out.println("Erro: O cuidador responsavel nao pode ser nulo.");
+    public void setNumeracao(String numeracao) {
+        if (numeracao == null || numeracao.isEmpty()) {
+            System.out.println("Erro: A numeracao da jaula nao pode ser vazia.");
         }
         else {
-            this.cuidadorResponsavel = cuidadorResponsavel;
+            this.numeracao = numeracao;
         }
     }
 
@@ -116,13 +114,8 @@ public abstract class Jaula extends Estrutura {
         }
     }
 
-    @Override
     public void exibirDados() {
-        super.exibirDados();
-
-        System.out.println("Cuidador responsavel:");
-        this.cuidadorResponsavel.exibirDados();
-
+        System.out.println("Numeracao: " + this.numeracao);
         System.out.println("Capacidade: " + this.capacidade);
         System.out.println("Nivel de seguranca: " + this.nivelSeguranca);
 

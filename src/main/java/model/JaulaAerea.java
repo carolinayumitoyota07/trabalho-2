@@ -1,3 +1,5 @@
+package model;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -13,16 +15,12 @@ public class JaulaAerea extends Jaula {
 
     public JaulaAerea(
         String numeracao,
-        int numeroFuncionariosResponsaveis,
-        Cuidador cuidadorResponsavel,
         int capacidade,
         NivelSeguranca nivelSeguranca,
         double metrosAltura
     ) {
         super(
             numeracao,
-            numeroFuncionariosResponsaveis,
-            cuidadorResponsavel,
             capacidade,
             nivelSeguranca
         );
