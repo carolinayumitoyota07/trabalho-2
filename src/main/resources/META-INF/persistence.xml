@@ -5,6 +5,10 @@
              version="3.0">
     <persistence-unit name="jurassicPU" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>model.AnimalPreHistorico</class>
+        <class>model.AnimalTerrestrePreHistorico</class>
+        <class>model.AnimalAquaticoPreHistorico</class>
+        <class>model.AnimalAereoPreHistorico</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC"/>

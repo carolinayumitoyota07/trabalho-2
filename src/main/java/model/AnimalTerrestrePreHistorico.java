@@ -1,5 +1,8 @@
 package model;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -9,8 +12,13 @@ package model;
  *
  * @author carol
  */
+@Entity
+@DiscriminatorValue("TERRESTRE")
 public class AnimalTerrestrePreHistorico extends AnimalPreHistorico {
     private int forcaFisica;
+
+    protected AnimalTerrestrePreHistorico() {
+    }
     
     public AnimalTerrestrePreHistorico(
         String codigo,
