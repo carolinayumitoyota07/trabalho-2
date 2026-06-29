@@ -1,5 +1,8 @@
 package model;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -9,9 +12,14 @@ package model;
  *
  * @author carol
  */
+@Entity
+@DiscriminatorValue("TERRESTRE")
 public class JaulaTerrestre extends Jaula {
 
     private double metrosCubicos;
+
+    protected JaulaTerrestre() {
+    }
 
     public JaulaTerrestre(
         String numeracao,

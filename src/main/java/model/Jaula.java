@@ -1,5 +1,20 @@
 package model;
 
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
@@ -9,16 +24,33 @@ package model;
  *
  * @author carol
  */
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipo_jaula")
 public abstract class Jaula {
 
+    @Id
+    @GeneratedValue
+    private Long id;
+
     private String numeracao;
-    private ArrayList<AnimalPreHistorico> animaisAlocados;
+
+    @OneToMany
+    @JoinTable(
+        name = "jaula_animais",
+        joinColumns = @JoinColumn(name = "jaula_id"),
+        inverseJoinColumns = @JoinColumn(name = "animal_id")
+    )
+    private List<AnimalPreHistorico> animaisAlocados;
+
     private int capacidade;
+
+    @Enumerated(EnumType.STRING)
     private NivelSeguranca nivelSeguranca;
+
+    protected Jaula() {
+        this.animaisAlocados = new ArrayList<>();
+    }
 
     public Jaula(
         String numeracao,
@@ -30,6 +62,10 @@ public abstract class Jaula {
         setNumeracao(numeracao);
         setCapacidade(capacidade);
         setNivelSeguranca(nivelSeguranca);
+    }
+
+    public Long getId() {
+        return this.id;
     }
 
     public String getNumeracao() {

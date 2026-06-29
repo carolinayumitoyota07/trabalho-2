@@ -9,6 +9,10 @@
         <class>model.AnimalTerrestrePreHistorico</class>
         <class>model.AnimalAquaticoPreHistorico</class>
         <class>model.AnimalAereoPreHistorico</class>
+        <class>model.Jaula</class>
+        <class>model.JaulaTerrestre</class>
+        <class>model.JaulaAquatica</class>
+        <class>model.JaulaAerea</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
