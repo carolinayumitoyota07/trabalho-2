@@ -53,6 +53,7 @@ public class TelaPrincipal extends JFrame {
     private JTextField campoIdAnimalAlocacao;
     private JTextField campoIdJaulaAlocacao;
     private JButton botaoAlocarAnimal;
+    private JButton botaoRemoverAnimalDaJaula;
     private JButton botaoListarAlocacoes;
     private JTextArea areaAnimais;
     private JTextArea areaJaulas;
@@ -112,6 +113,7 @@ public class TelaPrincipal extends JFrame {
         campoIdAnimalAlocacao = new JTextField();
         campoIdJaulaAlocacao = new JTextField();
         botaoAlocarAnimal = new JButton("Alocar animal na jaula");
+        botaoRemoverAnimalDaJaula = new JButton("Remover animal da jaula");
         botaoListarAlocacoes = new JButton("Listar alocacoes");
 
         areaAnimais = criarAreaTexto("Use os botoes para cadastrar, listar ou excluir animais.");
@@ -219,8 +221,9 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(new JLabel("Id da jaula:"));
         painelFormulario.add(campoIdJaulaAlocacao);
 
-        JPanel painelBotoes = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel painelBotoes = new JPanel(new GridLayout(1, 3, 10, 10));
         painelBotoes.add(botaoAlocarAnimal);
+        painelBotoes.add(botaoRemoverAnimalDaJaula);
         painelBotoes.add(botaoListarAlocacoes);
 
         JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
@@ -300,6 +303,16 @@ public class TelaPrincipal extends JFrame {
             @Override
             public void actionPerformed(ActionEvent evento) {
                 areaAlocacoes.setText(alocacaoController.alocarAnimal(
+                    campoIdAnimalAlocacao.getText(),
+                    campoIdJaulaAlocacao.getText()
+                ));
+            }
+        });
+
+        botaoRemoverAnimalDaJaula.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                areaAlocacoes.setText(alocacaoController.removerAnimalDaJaula(
                     campoIdAnimalAlocacao.getText(),
                     campoIdJaulaAlocacao.getText()
                 ));

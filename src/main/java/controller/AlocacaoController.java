@@ -123,18 +123,72 @@ public class AlocacaoController {
         }
     }
 
+    public String removerAnimalDaJaula(String idAnimalTexto, String idJaulaTexto) {
+        try {
+            if (campoVazio(idAnimalTexto) || campoVazio(idJaulaTexto)) {
+                return "Informe o id do animal e o id da jaula.";
+            }
+
+            Long idAnimal = Long.parseLong(idAnimalTexto);
+            Long idJaula = Long.parseLong(idJaulaTexto);
+
+            AnimalPreHistorico animal = animalDAO.buscarPorId(idAnimal);
+            if (animal == null) {
+                return "Animal nao encontrado.";
+            }
+
+            Jaula jaula = jaulaDAO.buscarPorId(idJaula);
+            if (jaula == null) {
+                return "Jaula nao encontrada.";
+            }
+
+            if (!animalEstaNaJaula(jaula, idAnimal)) {
+                return "Animal nao esta alocado nesta jaula.";
+            }
+
+            AnimalPreHistorico animalAlocado = obterAnimalAlocado(jaula, idAnimal);
+            int quantidadeAntes = jaula.getAnimaisAlocados().size();
+            jaula.removerAnimal(animalAlocado);
+
+            if (jaula.getAnimaisAlocados().size() == quantidadeAntes) {
+                return "Nao foi possivel remover o animal da jaula.";
+            }
+
+            jaulaDAO.atualizar(jaula);
+            return "Animal removido da jaula com sucesso.";
+        }
+        catch (NumberFormatException exception) {
+            return "Os ids devem ser numericos.";
+        }
+        catch (RuntimeException exception) {
+            return "Nao foi possivel remover o animal da jaula.";
+        }
+    }
+
     private boolean animalJaAlocado(Long idAnimal) {
         List<Jaula> jaulas = jaulaDAO.listarTodas();
 
         for (Jaula jaula : jaulas) {
-            for (AnimalPreHistorico animal : jaula.getAnimaisAlocados()) {
-                if (animal.getId() != null && animal.getId().equals(idAnimal)) {
-                    return true;
-                }
+            if (animalEstaNaJaula(jaula, idAnimal)) {
+                return true;
             }
         }
 
         return false;
+    }
+
+    private boolean animalEstaNaJaula(Jaula jaula, Long idAnimal) {
+        return obterAnimalAlocado(jaula, idAnimal) != null;
+    }
+
+    private AnimalPreHistorico obterAnimalAlocado(Jaula jaula, Long idAnimal) {
+        for (AnimalPreHistorico animal : jaula.getAnimaisAlocados()) {
+            if (animal.getId() != null && animal.getId().equals(idAnimal)) {
+                return animal;
+            }
+        }
+
+        return null;
     }
 
     private String montarMensagemFalhaAlocacao(Jaula jaula, AnimalPreHistorico animal) {
