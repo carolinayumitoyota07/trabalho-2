@@ -87,6 +87,27 @@ public class JaulaDAO {
         }
     }
 
+    public void atualizarDuasJaulas(Jaula jaulaOrigem, Jaula jaulaDestino) {
+        EntityManager entityManager = JPAUtil.getEntityManager();
+
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.merge(jaulaOrigem);
+            entityManager.merge(jaulaDestino);
+            entityManager.getTransaction().commit();
+        }
+        catch (RuntimeException exception) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
+            throw exception;
+        }
+        finally {
+            entityManager.close();
+        }
+    }
+
     public void remover(Long id) {
         EntityManager entityManager = JPAUtil.getEntityManager();
 

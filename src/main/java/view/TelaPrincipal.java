@@ -52,8 +52,10 @@ public class TelaPrincipal extends JFrame {
     private JButton botaoExcluirJaula;
     private JTextField campoIdAnimalAlocacao;
     private JTextField campoIdJaulaAlocacao;
+    private JTextField campoIdJaulaDestinoAlocacao;
     private JButton botaoAlocarAnimal;
     private JButton botaoRemoverAnimalDaJaula;
+    private JButton botaoTrocarAnimalDeJaula;
     private JButton botaoListarAlocacoes;
     private JTextArea areaAnimais;
     private JTextArea areaJaulas;
@@ -112,8 +114,10 @@ public class TelaPrincipal extends JFrame {
 
         campoIdAnimalAlocacao = new JTextField();
         campoIdJaulaAlocacao = new JTextField();
+        campoIdJaulaDestinoAlocacao = new JTextField();
         botaoAlocarAnimal = new JButton("Alocar animal na jaula");
         botaoRemoverAnimalDaJaula = new JButton("Remover animal da jaula");
+        botaoTrocarAnimalDeJaula = new JButton("Trocar animal de jaula");
         botaoListarAlocacoes = new JButton("Listar alocacoes");
 
         areaAnimais = criarAreaTexto("Use os botoes para cadastrar, listar ou excluir animais.");
@@ -215,15 +219,18 @@ public class TelaPrincipal extends JFrame {
     private JPanel criarAbaAlocacoes() {
         JPanel painelAlocacoes = new JPanel(new BorderLayout(10, 10));
 
-        JPanel painelFormulario = new JPanel(new GridLayout(2, 2, 5, 5));
+        JPanel painelFormulario = new JPanel(new GridLayout(3, 2, 5, 5));
         painelFormulario.add(new JLabel("Id do animal:"));
         painelFormulario.add(campoIdAnimalAlocacao);
-        painelFormulario.add(new JLabel("Id da jaula:"));
+        painelFormulario.add(new JLabel("Id da jaula origem:"));
         painelFormulario.add(campoIdJaulaAlocacao);
+        painelFormulario.add(new JLabel("Id da jaula destino:"));
+        painelFormulario.add(campoIdJaulaDestinoAlocacao);
 
-        JPanel painelBotoes = new JPanel(new GridLayout(1, 3, 10, 10));
+        JPanel painelBotoes = new JPanel(new GridLayout(2, 2, 10, 10));
         painelBotoes.add(botaoAlocarAnimal);
         painelBotoes.add(botaoRemoverAnimalDaJaula);
+        painelBotoes.add(botaoTrocarAnimalDeJaula);
         painelBotoes.add(botaoListarAlocacoes);
 
         JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
@@ -315,6 +322,17 @@ public class TelaPrincipal extends JFrame {
                 areaAlocacoes.setText(alocacaoController.removerAnimalDaJaula(
                     campoIdAnimalAlocacao.getText(),
                     campoIdJaulaAlocacao.getText()
+                ));
+            }
+        });
+
+        botaoTrocarAnimalDeJaula.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                areaAlocacoes.setText(alocacaoController.trocarAnimalDeJaula(
+                    campoIdAnimalAlocacao.getText(),
+                    campoIdJaulaAlocacao.getText(),
+                    campoIdJaulaDestinoAlocacao.getText()
                 ));
             }
         });

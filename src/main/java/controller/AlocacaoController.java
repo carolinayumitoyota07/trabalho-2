@@ -165,6 +165,73 @@ public class AlocacaoController {
         }
     }
 
+    public String trocarAnimalDeJaula(
+        String idAnimalTexto,
+        String idJaulaOrigemTexto,
+        String idJaulaDestinoTexto
+    ) {
+        try {
+            if (
+                campoVazio(idAnimalTexto) ||
+                campoVazio(idJaulaOrigemTexto) ||
+                campoVazio(idJaulaDestinoTexto)
+            ) {
+                return "Informe o id do animal, da jaula origem e da jaula destino.";
+            }
+
+            Long idAnimal = Long.parseLong(idAnimalTexto);
+            Long idJaulaOrigem = Long.parseLong(idJaulaOrigemTexto);
+            Long idJaulaDestino = Long.parseLong(idJaulaDestinoTexto);
+
+            if (idJaulaOrigem.equals(idJaulaDestino)) {
+                return "A jaula de origem deve ser diferente da jaula de destino.";
+            }
+
+            AnimalPreHistorico animal = animalDAO.buscarPorId(idAnimal);
+            if (animal == null) {
+                return "Animal nao encontrado.";
+            }
+
+            Jaula jaulaOrigem = jaulaDAO.buscarPorId(idJaulaOrigem);
+            if (jaulaOrigem == null) {
+                return "Jaula de origem nao encontrada.";
+            }
+
+            Jaula jaulaDestino = jaulaDAO.buscarPorId(idJaulaDestino);
+            if (jaulaDestino == null) {
+                return "Jaula de destino nao encontrada.";
+            }
+
+            if (!animalEstaNaJaula(jaulaOrigem, idAnimal)) {
+                return "Animal nao esta alocado na jaula de origem.";
+            }
+
+            AnimalPreHistorico animalAlocado = obterAnimalAlocado(jaulaOrigem, idAnimal);
+            int quantidadeDestinoAntes = jaulaDestino.getAnimaisAlocados().size();
+            jaulaDestino.adicionarAnimal(animalAlocado);
+
+            if (jaulaDestino.getAnimaisAlocados().size() == quantidadeDestinoAntes) {
+                return montarMensagemFalhaAlocacao(jaulaDestino, animalAlocado);
+            }
+
+            int quantidadeOrigemAntes = jaulaOrigem.getAnimaisAlocados().size();
+            jaulaOrigem.removerAnimal(animalAlocado);
+
+            if (jaulaOrigem.getAnimaisAlocados().size() == quantidadeOrigemAntes) {
+                return "Nao foi possivel remover o animal da jaula de origem.";
+            }
+
+            jaulaDAO.atualizarDuasJaulas(jaulaOrigem, jaulaDestino);
+            return "Animal trocado de jaula com sucesso.";
+        }
+        catch (NumberFormatException exception) {
+            return "Os ids devem ser numericos.";
+        }
+        catch (RuntimeException exception) {
+            return "Nao foi possivel trocar o animal de jaula.";
+        }
+    }
+
     private boolean animalJaAlocado(Long idAnimal) {
         List<Jaula> jaulas = jaulaDAO.listarTodas();
 
