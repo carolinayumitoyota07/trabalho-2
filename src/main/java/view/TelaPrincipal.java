@@ -76,7 +76,7 @@ public class TelaPrincipal extends JFrame {
         botaoAnimais.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaInformacoes.setText(controller.obterMensagemAnimais());
+                areaInformacoes.setText(controller.obterListagemAnimais());
             }
         });
 
