@@ -1,6 +1,7 @@
 package view;
 
 import controller.AnimalController;
+import controller.JaulaController;
 import controller.TelaPrincipalController;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -17,12 +18,14 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import model.Dieta;
+import model.NivelSeguranca;
 import model.Porte;
 
 public class TelaPrincipal extends JFrame {
 
     private TelaPrincipalController controller;
     private AnimalController animalController;
+    private JaulaController jaulaController;
     private JTabbedPane abas;
     private JLabel titulo;
     private JComboBox<String> comboTipoAnimal;
@@ -36,6 +39,15 @@ public class TelaPrincipal extends JFrame {
     private JButton botaoCadastrarAnimal;
     private JButton botaoListarAnimais;
     private JButton botaoExcluirAnimal;
+    private JComboBox<String> comboTipoJaula;
+    private JTextField campoNumeracaoJaula;
+    private JTextField campoCapacidadeJaula;
+    private JComboBox<NivelSeguranca> comboNivelSegurancaJaula;
+    private JTextField campoAtributoEspecificoJaula;
+    private JTextField campoIdExcluirJaula;
+    private JButton botaoCadastrarJaula;
+    private JButton botaoListarJaulas;
+    private JButton botaoExcluirJaula;
     private JTextArea areaAnimais;
     private JTextArea areaJaulas;
     private JTextArea areaAlocacoes;
@@ -48,6 +60,7 @@ public class TelaPrincipal extends JFrame {
     public TelaPrincipal(TelaPrincipalController controller) {
         this.controller = controller;
         animalController = new AnimalController();
+        jaulaController = new JaulaController();
         configurarJanela();
         inicializarComponentes();
         montarLayout();
@@ -78,8 +91,19 @@ public class TelaPrincipal extends JFrame {
         botaoListarAnimais = new JButton("Listar animais");
         botaoExcluirAnimal = new JButton("Excluir animal");
 
+        comboTipoJaula = new JComboBox<String>(new String[] {"TERRESTRE", "AQUATICA", "AEREA"});
+        campoNumeracaoJaula = new JTextField();
+        campoCapacidadeJaula = new JTextField();
+        comboNivelSegurancaJaula = new JComboBox<NivelSeguranca>(NivelSeguranca.values());
+        campoAtributoEspecificoJaula = new JTextField();
+        campoIdExcluirJaula = new JTextField();
+
+        botaoCadastrarJaula = new JButton("Cadastrar jaula");
+        botaoListarJaulas = new JButton("Listar jaulas");
+        botaoExcluirJaula = new JButton("Excluir jaula");
+
         areaAnimais = criarAreaTexto("Use os botoes para cadastrar, listar ou excluir animais.");
-        areaJaulas = criarAreaTexto("Funcionalidade sera implementada na proxima etapa.");
+        areaJaulas = criarAreaTexto("Use os botoes para cadastrar, listar ou excluir jaulas.");
         areaAlocacoes = criarAreaTexto("Funcionalidade sera implementada na proxima etapa.");
         areaSobre = criarAreaTexto(controller.obterMensagemSobre());
     }
@@ -98,7 +122,7 @@ public class TelaPrincipal extends JFrame {
         painelPrincipal.add(titulo, BorderLayout.NORTH);
 
         abas.addTab("Animais", criarAbaAnimais());
-        abas.addTab("Jaulas", criarAbaSimples(areaJaulas));
+        abas.addTab("Jaulas", criarAbaJaulas());
         abas.addTab("Alocacoes", criarAbaSimples(areaAlocacoes));
         abas.addTab("Sobre", criarAbaSimples(areaSobre));
 
@@ -142,6 +166,38 @@ public class TelaPrincipal extends JFrame {
         return painelAnimais;
     }
 
+    private JPanel criarAbaJaulas() {
+        JPanel painelJaulas = new JPanel(new BorderLayout(10, 10));
+
+        JPanel painelFormulario = new JPanel(new GridLayout(6, 2, 5, 5));
+        painelFormulario.add(new JLabel("Tipo:"));
+        painelFormulario.add(comboTipoJaula);
+        painelFormulario.add(new JLabel("Numeracao:"));
+        painelFormulario.add(campoNumeracaoJaula);
+        painelFormulario.add(new JLabel("Capacidade:"));
+        painelFormulario.add(campoCapacidadeJaula);
+        painelFormulario.add(new JLabel("Nivel de seguranca:"));
+        painelFormulario.add(comboNivelSegurancaJaula);
+        painelFormulario.add(new JLabel("Atributo especifico (> 0):"));
+        painelFormulario.add(campoAtributoEspecificoJaula);
+        painelFormulario.add(new JLabel("Id para excluir:"));
+        painelFormulario.add(campoIdExcluirJaula);
+
+        JPanel painelBotoes = new JPanel(new GridLayout(1, 3, 10, 10));
+        painelBotoes.add(botaoCadastrarJaula);
+        painelBotoes.add(botaoListarJaulas);
+        painelBotoes.add(botaoExcluirJaula);
+
+        JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
+        painelSuperior.add(painelFormulario, BorderLayout.CENTER);
+        painelSuperior.add(painelBotoes, BorderLayout.SOUTH);
+
+        painelJaulas.add(painelSuperior, BorderLayout.NORTH);
+        painelJaulas.add(new JScrollPane(areaJaulas), BorderLayout.CENTER);
+
+        return painelJaulas;
+    }
+
     private JPanel criarAbaSimples(JTextArea areaTexto) {
         JPanel painel = new JPanel(new BorderLayout());
         painel.add(new JScrollPane(areaTexto), BorderLayout.CENTER);
@@ -175,6 +231,33 @@ public class TelaPrincipal extends JFrame {
             @Override
             public void actionPerformed(ActionEvent evento) {
                 areaAnimais.setText(animalController.excluirAnimal(campoIdExcluirAnimal.getText()));
+            }
+        });
+
+        botaoCadastrarJaula.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                areaJaulas.setText(jaulaController.cadastrarJaula(
+                    (String) comboTipoJaula.getSelectedItem(),
+                    campoNumeracaoJaula.getText(),
+                    campoCapacidadeJaula.getText(),
+                    (NivelSeguranca) comboNivelSegurancaJaula.getSelectedItem(),
+                    campoAtributoEspecificoJaula.getText()
+                ));
+            }
+        });
+
+        botaoListarJaulas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                areaJaulas.setText(jaulaController.listarJaulas());
+            }
+        });
+
+        botaoExcluirJaula.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                areaJaulas.setText(jaulaController.excluirJaula(campoIdExcluirJaula.getText()));
             }
         });
     }
