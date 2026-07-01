@@ -1,6 +1,7 @@
 package view;
 
 import controller.AnimalController;
+import controller.AlocacaoController;
 import controller.JaulaController;
 import controller.TelaPrincipalController;
 import java.awt.BorderLayout;
@@ -25,6 +26,7 @@ public class TelaPrincipal extends JFrame {
 
     private TelaPrincipalController controller;
     private AnimalController animalController;
+    private AlocacaoController alocacaoController;
     private JaulaController jaulaController;
     private JTabbedPane abas;
     private JLabel titulo;
@@ -48,6 +50,10 @@ public class TelaPrincipal extends JFrame {
     private JButton botaoCadastrarJaula;
     private JButton botaoListarJaulas;
     private JButton botaoExcluirJaula;
+    private JTextField campoIdAnimalAlocacao;
+    private JTextField campoIdJaulaAlocacao;
+    private JButton botaoAlocarAnimal;
+    private JButton botaoListarAlocacoes;
     private JTextArea areaAnimais;
     private JTextArea areaJaulas;
     private JTextArea areaAlocacoes;
@@ -60,6 +66,7 @@ public class TelaPrincipal extends JFrame {
     public TelaPrincipal(TelaPrincipalController controller) {
         this.controller = controller;
         animalController = new AnimalController();
+        alocacaoController = new AlocacaoController();
         jaulaController = new JaulaController();
         configurarJanela();
         inicializarComponentes();
@@ -102,9 +109,14 @@ public class TelaPrincipal extends JFrame {
         botaoListarJaulas = new JButton("Listar jaulas");
         botaoExcluirJaula = new JButton("Excluir jaula");
 
+        campoIdAnimalAlocacao = new JTextField();
+        campoIdJaulaAlocacao = new JTextField();
+        botaoAlocarAnimal = new JButton("Alocar animal na jaula");
+        botaoListarAlocacoes = new JButton("Listar alocacoes");
+
         areaAnimais = criarAreaTexto("Use os botoes para cadastrar, listar ou excluir animais.");
         areaJaulas = criarAreaTexto("Use os botoes para cadastrar, listar ou excluir jaulas.");
-        areaAlocacoes = criarAreaTexto("Funcionalidade sera implementada na proxima etapa.");
+        areaAlocacoes = criarAreaTexto("Use os campos para alocar animais em jaulas.");
         areaSobre = criarAreaTexto(controller.obterMensagemSobre());
     }
 
@@ -123,7 +135,7 @@ public class TelaPrincipal extends JFrame {
 
         abas.addTab("Animais", criarAbaAnimais());
         abas.addTab("Jaulas", criarAbaJaulas());
-        abas.addTab("Alocacoes", criarAbaSimples(areaAlocacoes));
+        abas.addTab("Alocacoes", criarAbaAlocacoes());
         abas.addTab("Sobre", criarAbaSimples(areaSobre));
 
         painelPrincipal.add(abas, BorderLayout.CENTER);
@@ -198,6 +210,29 @@ public class TelaPrincipal extends JFrame {
         return painelJaulas;
     }
 
+    private JPanel criarAbaAlocacoes() {
+        JPanel painelAlocacoes = new JPanel(new BorderLayout(10, 10));
+
+        JPanel painelFormulario = new JPanel(new GridLayout(2, 2, 5, 5));
+        painelFormulario.add(new JLabel("Id do animal:"));
+        painelFormulario.add(campoIdAnimalAlocacao);
+        painelFormulario.add(new JLabel("Id da jaula:"));
+        painelFormulario.add(campoIdJaulaAlocacao);
+
+        JPanel painelBotoes = new JPanel(new GridLayout(1, 2, 10, 10));
+        painelBotoes.add(botaoAlocarAnimal);
+        painelBotoes.add(botaoListarAlocacoes);
+
+        JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
+        painelSuperior.add(painelFormulario, BorderLayout.CENTER);
+        painelSuperior.add(painelBotoes, BorderLayout.SOUTH);
+
+        painelAlocacoes.add(painelSuperior, BorderLayout.NORTH);
+        painelAlocacoes.add(new JScrollPane(areaAlocacoes), BorderLayout.CENTER);
+
+        return painelAlocacoes;
+    }
+
     private JPanel criarAbaSimples(JTextArea areaTexto) {
         JPanel painel = new JPanel(new BorderLayout());
         painel.add(new JScrollPane(areaTexto), BorderLayout.CENTER);
@@ -258,6 +293,23 @@ public class TelaPrincipal extends JFrame {
             @Override
             public void actionPerformed(ActionEvent evento) {
                 areaJaulas.setText(jaulaController.excluirJaula(campoIdExcluirJaula.getText()));
+            }
+        });
+
+        botaoAlocarAnimal.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                areaAlocacoes.setText(alocacaoController.alocarAnimal(
+                    campoIdAnimalAlocacao.getText(),
+                    campoIdJaulaAlocacao.getText()
+                ));
+            }
+        });
+
+        botaoListarAlocacoes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                areaAlocacoes.setText(alocacaoController.listarAlocacoes());
             }
         });
     }
