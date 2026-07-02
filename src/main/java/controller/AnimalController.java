@@ -23,6 +23,25 @@ public class AnimalController {
 
     public String cadastrarAnimal(
         String tipo,
+        String nome,
+        String especie,
+        Dieta dieta,
+        Porte porte,
+        String valorEspecifico
+    ) {
+        return cadastrarAnimal(
+            tipo,
+            gerarCodigoInternoAnimal(),
+            nome,
+            especie,
+            dieta,
+            porte,
+            valorEspecifico
+        );
+    }
+
+    public String cadastrarAnimal(
+        String tipo,
         String codigo,
         String nome,
         String especie,
@@ -33,6 +52,10 @@ public class AnimalController {
         try {
             if (campoVazio(tipo) || campoVazio(codigo) || campoVazio(nome) || campoVazio(especie)) {
                 return "Preencha todos os campos obrigatorios.";
+            }
+
+            if (!nomeValido(nome)) {
+                return "O nome deve conter apenas letras e espacos.";
             }
 
             if (dieta == null || porte == null) {
@@ -59,7 +82,7 @@ public class AnimalController {
             }
 
             animalDAO.salvar(animal);
-            return "Animal cadastrado com sucesso.";
+            return "Animal cadastrado com sucesso. ID/Codigo: " + animal.getId() + ".";
         }
         catch (NumberFormatException exception) {
             return "O atributo especifico deve ser um numero inteiro.";
@@ -77,18 +100,13 @@ public class AnimalController {
                 return "Nenhum animal cadastrado.";
             }
 
+            List<Jaula> jaulas = jaulaDAO.listarTodas();
             StringBuilder listagem = new StringBuilder();
             listagem.append("Animais cadastrados:\n\n");
 
             for (AnimalPreHistorico animal : animais) {
-                listagem.append("Tipo: ")
-                    .append(animal.getClass().getSimpleName())
-                    .append("\n");
-                listagem.append("Id: ")
+                listagem.append("ID/Codigo do animal: ")
                     .append(animal.getId())
-                    .append("\n");
-                listagem.append("Codigo: ")
-                    .append(animal.getCodigo())
                     .append("\n");
                 listagem.append("Nome: ")
                     .append(animal.getNome())
@@ -102,8 +120,14 @@ public class AnimalController {
                 listagem.append("Porte: ")
                     .append(animal.getPorte())
                     .append("\n");
+                listagem.append("Tipo: ")
+                    .append(animal.getClass().getSimpleName())
+                    .append("\n");
                 listagem.append("Grau de perigo: ")
                     .append(animal.getGrauPerigo())
+                    .append("\n");
+                listagem.append("Jaula: ")
+                    .append(obterJaulaDoAnimal(animal, jaulas))
                     .append("\n\n");
             }
 
@@ -128,14 +152,14 @@ public class AnimalController {
             }
 
             if (animalEstaAlocado(id)) {
-                return "Animal esta alocado em uma jaula. Remova da jaula antes de excluir.";
+                return "Animal de id " + id + " esta alocado em uma jaula. Remova da jaula antes de excluir.";
             }
 
             animalDAO.remover(id);
-            return "Animal excluido com sucesso.";
+            return "Animal de id " + id + " excluido com sucesso.";
         }
         catch (NumberFormatException exception) {
-            return "O id deve ser numerico.";
+            return "O id do animal deve ser numerico.";
         }
         catch (RuntimeException exception) {
             return "Nao foi possivel excluir o animal.";
@@ -187,6 +211,27 @@ public class AnimalController {
         return null;
     }
 
+    private String obterJaulaDoAnimal(AnimalPreHistorico animal, List<Jaula> jaulas) {
+        if (animal.getId() == null) {
+            return "sem jaula";
+        }
+
+        for (Jaula jaula : jaulas) {
+            for (AnimalPreHistorico animalAlocado : jaula.getAnimaisAlocados()) {
+                if (
+                    animalAlocado.getId() != null &&
+                    animalAlocado.getId().equals(animal.getId())
+                ) {
+                    return "id " + jaula.getId() +
+                        " - numeracao " + jaula.getNumeracao() +
+                        " (" + jaula.getClass().getSimpleName() + ")";
+                }
+            }
+        }
+
+        return "sem jaula";
+    }
+
     private boolean animalEstaAlocado(Long idAnimal) {
         List<Jaula> jaulas = jaulaDAO.listarTodas();
 
@@ -199,6 +244,23 @@ public class AnimalController {
         }
 
         return false;
+    }
+
+    private String gerarCodigoInternoAnimal() {
+        return String.valueOf(System.currentTimeMillis()) +
+            String.valueOf(System.nanoTime()).replace("-", "");
+    }
+
+    private boolean nomeValido(String nome) {
+        for (int indice = 0; indice < nome.length(); indice++) {
+            char caractere = nome.charAt(indice);
+
+            if (!Character.isLetter(caractere) && caractere != ' ') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean campoVazio(String texto) {

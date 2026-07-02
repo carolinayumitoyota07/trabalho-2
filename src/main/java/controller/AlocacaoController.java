@@ -19,7 +19,7 @@ public class AlocacaoController {
     public String alocarAnimal(String idAnimalTexto, String idJaulaTexto) {
         try {
             if (campoVazio(idAnimalTexto) || campoVazio(idJaulaTexto)) {
-                return "Informe o id do animal e o id da jaula.";
+                return "Informe o id do animal e o id da jaula de destino.";
             }
 
             Long idAnimal = Long.parseLong(idAnimalTexto);
@@ -32,11 +32,11 @@ public class AlocacaoController {
 
             Jaula jaula = jaulaDAO.buscarPorId(idJaula);
             if (jaula == null) {
-                return "Jaula nao encontrada.";
+                return "Jaula de destino nao encontrada.";
             }
 
             if (animalJaAlocado(idAnimal)) {
-                return "Animal ja esta alocado. A troca de jaula sera implementada depois.";
+                return "Animal de id " + idAnimal + " ja esta alocado. Use a troca de jaula para mover o animal.";
             }
 
             int quantidadeAntes = jaula.getAnimaisAlocados().size();
@@ -47,10 +47,10 @@ public class AlocacaoController {
             }
 
             jaulaDAO.atualizar(jaula);
-            return "Animal alocado com sucesso.";
+            return "Animal de id " + idAnimal + " alocado com sucesso na jaula de id " + idJaula + ".";
         }
         catch (NumberFormatException exception) {
-            return "Os ids devem ser numericos.";
+            return "Operacao nao realizada: os ids devem ser numericos.";
         }
         catch (RuntimeException exception) {
             return "Nao foi possivel alocar o animal na jaula.";
@@ -69,13 +69,13 @@ public class AlocacaoController {
             listagem.append("Alocacoes cadastradas:\n\n");
 
             for (Jaula jaula : jaulas) {
-                listagem.append("Jaula: ")
-                    .append(jaula.getClass().getSimpleName())
-                    .append("\n");
                 listagem.append("Id da jaula: ")
                     .append(jaula.getId())
                     .append("\n");
-                listagem.append("Numeracao: ")
+                listagem.append("Tipo da jaula: ")
+                    .append(jaula.getClass().getSimpleName())
+                    .append("\n");
+                listagem.append("Numeracao informada: ")
                     .append(jaula.getNumeracao())
                     .append("\n");
                 listagem.append("Capacidade: ")
@@ -92,20 +92,17 @@ public class AlocacaoController {
                     listagem.append("Animais alocados:\n");
 
                     for (AnimalPreHistorico animal : jaula.getAnimaisAlocados()) {
-                        listagem.append("- ")
-                            .append(animal.getClass().getSimpleName())
-                            .append("\n");
-                        listagem.append("  Id: ")
+                        listagem.append("- ID/Codigo do animal: ")
                             .append(animal.getId())
-                            .append("\n");
-                        listagem.append("  Codigo: ")
-                            .append(animal.getCodigo())
                             .append("\n");
                         listagem.append("  Nome: ")
                             .append(animal.getNome())
                             .append("\n");
                         listagem.append("  Especie: ")
                             .append(animal.getEspecie())
+                            .append("\n");
+                        listagem.append("  Tipo do animal: ")
+                            .append(animal.getClass().getSimpleName())
                             .append("\n");
                         listagem.append("  Grau de perigo: ")
                             .append(animal.getGrauPerigo())
@@ -126,7 +123,7 @@ public class AlocacaoController {
     public String removerAnimalDaJaula(String idAnimalTexto, String idJaulaTexto) {
         try {
             if (campoVazio(idAnimalTexto) || campoVazio(idJaulaTexto)) {
-                return "Informe o id do animal e o id da jaula.";
+                return "Informe o id do animal e o id da jaula de origem.";
             }
 
             Long idAnimal = Long.parseLong(idAnimalTexto);
@@ -139,11 +136,11 @@ public class AlocacaoController {
 
             Jaula jaula = jaulaDAO.buscarPorId(idJaula);
             if (jaula == null) {
-                return "Jaula nao encontrada.";
+                return "Jaula de origem nao encontrada.";
             }
 
             if (!animalEstaNaJaula(jaula, idAnimal)) {
-                return "Animal nao esta alocado nesta jaula.";
+                return "Animal de id " + idAnimal + " nao esta alocado na jaula de id " + idJaula + ".";
             }
 
             AnimalPreHistorico animalAlocado = obterAnimalAlocado(jaula, idAnimal);
@@ -155,10 +152,10 @@ public class AlocacaoController {
             }
 
             jaulaDAO.atualizar(jaula);
-            return "Animal removido da jaula com sucesso.";
+            return "Animal de id " + idAnimal + " removido da jaula de id " + idJaula + " com sucesso.";
         }
         catch (NumberFormatException exception) {
-            return "Os ids devem ser numericos.";
+            return "Operacao nao realizada: os ids devem ser numericos.";
         }
         catch (RuntimeException exception) {
             return "Nao foi possivel remover o animal da jaula.";
@@ -176,7 +173,7 @@ public class AlocacaoController {
                 campoVazio(idJaulaOrigemTexto) ||
                 campoVazio(idJaulaDestinoTexto)
             ) {
-                return "Informe o id do animal, da jaula origem e da jaula destino.";
+                return "Informe o id do animal, o id da jaula de origem e o id da jaula de destino.";
             }
 
             Long idAnimal = Long.parseLong(idAnimalTexto);
@@ -203,7 +200,7 @@ public class AlocacaoController {
             }
 
             if (!animalEstaNaJaula(jaulaOrigem, idAnimal)) {
-                return "Animal nao esta alocado na jaula de origem.";
+                return "Animal de id " + idAnimal + " nao esta alocado na jaula de origem.";
             }
 
             AnimalPreHistorico animalAlocado = obterAnimalAlocado(jaulaOrigem, idAnimal);
@@ -222,10 +219,11 @@ public class AlocacaoController {
             }
 
             jaulaDAO.atualizarDuasJaulas(jaulaOrigem, jaulaDestino);
-            return "Animal trocado de jaula com sucesso.";
+            return "Animal de id " + idAnimal + " trocado da jaula de id " +
+                idJaulaOrigem + " para a jaula de id " + idJaulaDestino + " com sucesso.";
         }
         catch (NumberFormatException exception) {
-            return "Os ids devem ser numericos.";
+            return "Operacao nao realizada: os ids devem ser numericos.";
         }
         catch (RuntimeException exception) {
             return "Nao foi possivel trocar o animal de jaula.";
@@ -260,14 +258,14 @@ public class AlocacaoController {
 
     private String montarMensagemFalhaAlocacao(Jaula jaula, AnimalPreHistorico animal) {
         if (!jaula.verificarCapacidadeDisponivel()) {
-            return "Nao foi possivel alocar: a jaula esta cheia.";
+            return "Operacao nao realizada: a jaula esta cheia.";
         }
 
         if (!jaula.verificarCompatibilidadeAnimal(animal)) {
-            return "Nao foi possivel alocar: o animal e incompativel com esta jaula.";
+            return "Operacao nao realizada: animal incompativel com a jaula.";
         }
 
-        return "Nao foi possivel alocar o animal nesta jaula.";
+        return "Operacao nao realizada: animal nao foi alocado nesta jaula.";
     }
 
     private boolean campoVazio(String texto) {

@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -31,13 +32,12 @@ public class TelaPrincipal extends JFrame {
     private JTabbedPane abas;
     private JLabel titulo;
     private JComboBox<String> comboTipoAnimal;
-    private JTextField campoCodigoAnimal;
     private JTextField campoNomeAnimal;
     private JTextField campoEspecieAnimal;
     private JComboBox<Dieta> comboDietaAnimal;
     private JComboBox<Porte> comboPorteAnimal;
+    private JLabel rotuloAtributoAnimal;
     private JTextField campoAtributoEspecifico;
-    private JTextField campoIdExcluirAnimal;
     private JButton botaoCadastrarAnimal;
     private JButton botaoListarAnimais;
     private JButton botaoExcluirAnimal;
@@ -60,7 +60,6 @@ public class TelaPrincipal extends JFrame {
     private JTextArea areaAnimais;
     private JTextArea areaJaulas;
     private JTextArea areaAlocacoes;
-    private JTextArea areaSobre;
 
     public TelaPrincipal() {
         this(new TelaPrincipalController());
@@ -89,13 +88,12 @@ public class TelaPrincipal extends JFrame {
         abas = new JTabbedPane();
 
         comboTipoAnimal = new JComboBox<String>(new String[] {"TERRESTRE", "AQUATICO", "AEREO"});
-        campoCodigoAnimal = new JTextField();
         campoNomeAnimal = new JTextField();
         campoEspecieAnimal = new JTextField();
         comboDietaAnimal = new JComboBox<Dieta>(Dieta.values());
         comboPorteAnimal = new JComboBox<Porte>(Porte.values());
+        rotuloAtributoAnimal = new JLabel("Forca fisica (0 a 10):");
         campoAtributoEspecifico = new JTextField();
-        campoIdExcluirAnimal = new JTextField();
 
         botaoCadastrarAnimal = new JButton("Cadastrar animal");
         botaoListarAnimais = new JButton("Listar animais");
@@ -120,10 +118,9 @@ public class TelaPrincipal extends JFrame {
         botaoTrocarAnimalDeJaula = new JButton("Trocar animal de jaula");
         botaoListarAlocacoes = new JButton("Listar alocacoes");
 
-        areaAnimais = criarAreaTexto("Use os botoes para cadastrar, listar ou excluir animais.");
-        areaJaulas = criarAreaTexto("Use os botoes para cadastrar, listar ou excluir jaulas.");
-        areaAlocacoes = criarAreaTexto("Use os campos para alocar animais em jaulas.");
-        areaSobre = criarAreaTexto(controller.obterMensagemSobre());
+        areaAnimais = criarAreaTexto("Cadastre, liste ou exclua animais. O ID gerado pelo banco sera usado como codigo.");
+        areaJaulas = criarAreaTexto("Cadastre, liste ou exclua jaulas. As operacoes usam o id da jaula.");
+        areaAlocacoes = criarAreaTexto(obterMensagemOrientacaoAlocacoes());
     }
 
     private JTextArea criarAreaTexto(String textoInicial) {
@@ -142,7 +139,6 @@ public class TelaPrincipal extends JFrame {
         abas.addTab("Animais", criarAbaAnimais());
         abas.addTab("Jaulas", criarAbaJaulas());
         abas.addTab("Alocacoes", criarAbaAlocacoes());
-        abas.addTab("Sobre", criarAbaSimples(areaSobre));
 
         painelPrincipal.add(abas, BorderLayout.CENTER);
         add(painelPrincipal);
@@ -151,11 +147,9 @@ public class TelaPrincipal extends JFrame {
     private JPanel criarAbaAnimais() {
         JPanel painelAnimais = new JPanel(new BorderLayout(10, 10));
 
-        JPanel painelFormulario = new JPanel(new GridLayout(8, 2, 5, 5));
+        JPanel painelFormulario = new JPanel(new GridLayout(6, 2, 5, 5));
         painelFormulario.add(new JLabel("Tipo:"));
         painelFormulario.add(comboTipoAnimal);
-        painelFormulario.add(new JLabel("Codigo:"));
-        painelFormulario.add(campoCodigoAnimal);
         painelFormulario.add(new JLabel("Nome:"));
         painelFormulario.add(campoNomeAnimal);
         painelFormulario.add(new JLabel("Especie:"));
@@ -164,10 +158,8 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(comboDietaAnimal);
         painelFormulario.add(new JLabel("Porte:"));
         painelFormulario.add(comboPorteAnimal);
-        painelFormulario.add(new JLabel("Atributo especifico (0 a 10):"));
+        painelFormulario.add(rotuloAtributoAnimal);
         painelFormulario.add(campoAtributoEspecifico);
-        painelFormulario.add(new JLabel("Id para excluir:"));
-        painelFormulario.add(campoIdExcluirAnimal);
 
         JPanel painelBotoes = new JPanel(new GridLayout(1, 3, 10, 10));
         painelBotoes.add(botaoCadastrarAnimal);
@@ -198,7 +190,7 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(comboNivelSegurancaJaula);
         painelFormulario.add(new JLabel("Atributo especifico (> 0):"));
         painelFormulario.add(campoAtributoEspecificoJaula);
-        painelFormulario.add(new JLabel("Id para excluir:"));
+        painelFormulario.add(new JLabel("Id da jaula para excluir:"));
         painelFormulario.add(campoIdExcluirJaula);
 
         JPanel painelBotoes = new JPanel(new GridLayout(1, 3, 10, 10));
@@ -222,9 +214,9 @@ public class TelaPrincipal extends JFrame {
         JPanel painelFormulario = new JPanel(new GridLayout(3, 2, 5, 5));
         painelFormulario.add(new JLabel("Id do animal:"));
         painelFormulario.add(campoIdAnimalAlocacao);
-        painelFormulario.add(new JLabel("Id da jaula origem:"));
+        painelFormulario.add(new JLabel("Id da jaula origem (remover/trocar):"));
         painelFormulario.add(campoIdJaulaAlocacao);
-        painelFormulario.add(new JLabel("Id da jaula destino:"));
+        painelFormulario.add(new JLabel("Id da jaula destino (alocar/trocar):"));
         painelFormulario.add(campoIdJaulaDestinoAlocacao);
 
         JPanel painelBotoes = new JPanel(new GridLayout(2, 2, 10, 10));
@@ -243,19 +235,19 @@ public class TelaPrincipal extends JFrame {
         return painelAlocacoes;
     }
 
-    private JPanel criarAbaSimples(JTextArea areaTexto) {
-        JPanel painel = new JPanel(new BorderLayout());
-        painel.add(new JScrollPane(areaTexto), BorderLayout.CENTER);
-        return painel;
-    }
-
     private void registrarEventos() {
+        comboTipoAnimal.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                atualizarRotuloAtributoAnimal();
+            }
+        });
+
         botaoCadastrarAnimal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
                 areaAnimais.setText(animalController.cadastrarAnimal(
                     (String) comboTipoAnimal.getSelectedItem(),
-                    campoCodigoAnimal.getText(),
                     campoNomeAnimal.getText(),
                     campoEspecieAnimal.getText(),
                     (Dieta) comboDietaAnimal.getSelectedItem(),
@@ -275,7 +267,17 @@ public class TelaPrincipal extends JFrame {
         botaoExcluirAnimal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaAnimais.setText(animalController.excluirAnimal(campoIdExcluirAnimal.getText()));
+                String idAnimal = JOptionPane.showInputDialog(
+                    TelaPrincipal.this,
+                    "Informe o id do animal a ser excluido"
+                );
+
+                if (idAnimal == null) {
+                    areaAnimais.setText("Exclusao de animal cancelada.");
+                }
+                else {
+                    areaAnimais.setText(animalController.excluirAnimal(idAnimal));
+                }
             }
         });
 
@@ -311,7 +313,7 @@ public class TelaPrincipal extends JFrame {
             public void actionPerformed(ActionEvent evento) {
                 areaAlocacoes.setText(alocacaoController.alocarAnimal(
                     campoIdAnimalAlocacao.getText(),
-                    campoIdJaulaAlocacao.getText()
+                    campoIdJaulaDestinoAlocacao.getText()
                 ));
             }
         });
@@ -343,5 +345,25 @@ public class TelaPrincipal extends JFrame {
                 areaAlocacoes.setText(alocacaoController.listarAlocacoes());
             }
         });
+    }
+
+    private void atualizarRotuloAtributoAnimal() {
+        String tipo = (String) comboTipoAnimal.getSelectedItem();
+
+        if ("AQUATICO".equals(tipo)) {
+            rotuloAtributoAnimal.setText("Dificuldade de contencao aquatica (0 a 10):");
+        }
+        else if ("AEREO".equals(tipo)) {
+            rotuloAtributoAnimal.setText("Risco de fuga aerea (0 a 10):");
+        }
+        else {
+            rotuloAtributoAnimal.setText("Forca fisica (0 a 10):");
+        }
+    }
+
+    private String obterMensagemOrientacaoAlocacoes() {
+        return "Alocar: informe o id do animal e o id da jaula de destino.\n"
+            + "Remover: informe o id do animal e o id da jaula de origem.\n"
+            + "Trocar: informe o id do animal, o id da jaula de origem e o id da jaula de destino.";
     }
 }

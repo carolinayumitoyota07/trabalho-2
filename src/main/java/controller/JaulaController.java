@@ -2,6 +2,7 @@ package controller;
 
 import dao.JaulaDAO;
 import java.util.List;
+import model.AnimalPreHistorico;
 import model.Jaula;
 import model.JaulaAerea;
 import model.JaulaAquatica;
@@ -26,6 +27,10 @@ public class JaulaController {
         try {
             if (campoVazio(tipo) || campoVazio(numeracao) || campoVazio(capacidadeTexto)) {
                 return "Preencha todos os campos obrigatorios.";
+            }
+
+            if (!numeracaoValida(numeracao)) {
+                return "A numeracao da jaula deve ser numerica.";
             }
 
             if (nivelSeguranca == null) {
@@ -56,7 +61,7 @@ public class JaulaController {
             }
 
             jaulaDAO.salvar(jaula);
-            return "Jaula cadastrada com sucesso.";
+            return "Jaula cadastrada com sucesso. Id da jaula: " + jaula.getId() + ".";
         }
         catch (NumberFormatException exception) {
             return "Capacidade e atributo especifico devem ser numericos.";
@@ -78,13 +83,13 @@ public class JaulaController {
             listagem.append("Jaulas cadastradas:\n\n");
 
             for (Jaula jaula : jaulas) {
-                listagem.append("Tipo: ")
-                    .append(jaula.getClass().getSimpleName())
-                    .append("\n");
-                listagem.append("Id: ")
+                listagem.append("Id da jaula: ")
                     .append(jaula.getId())
                     .append("\n");
-                listagem.append("Numeracao: ")
+                listagem.append("Tipo da jaula: ")
+                    .append(jaula.getClass().getSimpleName())
+                    .append("\n");
+                listagem.append("Numeracao informada: ")
                     .append(jaula.getNumeracao())
                     .append("\n");
                 listagem.append("Capacidade: ")
@@ -93,9 +98,33 @@ public class JaulaController {
                 listagem.append("Nivel de seguranca: ")
                     .append(jaula.getNivelSeguranca())
                     .append("\n");
-                listagem.append("Animais alocados: ")
+                listagem.append("Quantidade de animais alocados: ")
                     .append(jaula.getAnimaisAlocados().size())
-                    .append("\n\n");
+                    .append("\n");
+
+                if (jaula.getAnimaisAlocados().isEmpty()) {
+                    listagem.append("Sem animais alocados.\n\n");
+                }
+                else {
+                    listagem.append("Animais alocados:\n");
+
+                    for (AnimalPreHistorico animal : jaula.getAnimaisAlocados()) {
+                        listagem.append("- ID/Codigo do animal: ")
+                            .append(animal.getId())
+                            .append("\n");
+                        listagem.append("  Nome: ")
+                            .append(animal.getNome())
+                            .append("\n");
+                        listagem.append("  Especie: ")
+                            .append(animal.getEspecie())
+                            .append("\n");
+                        listagem.append("  Tipo do animal: ")
+                            .append(animal.getClass().getSimpleName())
+                            .append("\n");
+                    }
+
+                    listagem.append("\n");
+                }
             }
 
             return listagem.toString();
@@ -119,14 +148,14 @@ public class JaulaController {
             }
 
             if (!jaula.getAnimaisAlocados().isEmpty()) {
-                return "Jaula possui animais alocados. Remova os animais antes de excluir.";
+                return "Jaula de id " + id + " possui animais alocados. Remova os animais antes de excluir.";
             }
 
             jaulaDAO.remover(id);
-            return "Jaula excluida com sucesso.";
+            return "Jaula de id " + id + " excluida com sucesso.";
         }
         catch (NumberFormatException exception) {
-            return "O id deve ser numerico.";
+            return "O id da jaula deve ser numerico.";
         }
         catch (RuntimeException exception) {
             return "Nao foi possivel excluir a jaula.";
@@ -168,6 +197,16 @@ public class JaulaController {
         }
 
         return null;
+    }
+
+    private boolean numeracaoValida(String numeracao) {
+        for (int indice = 0; indice < numeracao.length(); indice++) {
+            if (!Character.isDigit(numeracao.charAt(indice))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean campoVazio(String texto) {
