@@ -5,9 +5,13 @@ import controller.AlocacaoController;
 import controller.JaulaController;
 import controller.TelaPrincipalController;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -19,11 +23,21 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import model.Dieta;
 import model.NivelSeguranca;
 import model.Porte;
 
 public class TelaPrincipal extends JFrame {
+
+    private static final Color COR_FUNDO = new Color(244, 247, 250);
+    private static final Color COR_PAINEL = new Color(255, 255, 255);
+    private static final Color COR_TITULO = new Color(31, 73, 98);
+    private static final Color COR_RESULTADO = new Color(250, 252, 255);
+    private static final Color COR_BORDA = new Color(205, 215, 225);
+    private static final Font FONTE_TITULO = new Font("SansSerif", Font.BOLD, 20);
+    private static final Font FONTE_SUBTITULO = new Font("SansSerif", Font.BOLD, 14);
 
     private TelaPrincipalController controller;
     private AnimalController animalController;
@@ -77,7 +91,7 @@ public class TelaPrincipal extends JFrame {
 
     private void configurarJanela() {
         setTitle("Sistema de Gestao Jurassic Park");
-        setSize(750, 520);
+        setSize(900, 650);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
     }
@@ -111,14 +125,16 @@ public class TelaPrincipal extends JFrame {
         campoIdAnimalAlocacao = new JTextField();
         campoIdJaulaAlocacao = new JTextField();
         campoIdJaulaDestinoAlocacao = new JTextField();
-        botaoAlocarAnimal = new JButton("Alocar animal na jaula");
-        botaoRemoverAnimalDaJaula = new JButton("Remover animal da jaula");
-        botaoTrocarAnimalDeJaula = new JButton("Trocar animal de jaula");
+        botaoAlocarAnimal = new JButton("Alocar");
+        botaoRemoverAnimalDaJaula = new JButton("Remover");
+        botaoTrocarAnimalDeJaula = new JButton("Trocar");
         botaoListarAlocacoes = new JButton("Listar alocacoes");
 
         areaAnimais = criarAreaTexto("Cadastre, liste ou exclua animais. O ID gerado pelo banco sera usado como codigo.");
         areaJaulas = criarAreaTexto("Cadastre, liste ou exclua jaulas. As operacoes usam o id da jaula.");
         areaAlocacoes = criarAreaTexto(obterMensagemOrientacaoAlocacoes());
+
+        configurarAparenciaComponentes();
     }
 
     private JTextArea criarAreaTexto(String textoInicial) {
@@ -126,13 +142,19 @@ public class TelaPrincipal extends JFrame {
         area.setEditable(false);
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
+        area.setRows(12);
+        area.setBackground(COR_RESULTADO);
+        area.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        area.setBorder(new EmptyBorder(8, 8, 8, 8));
         area.setText(textoInicial);
         return area;
     }
 
     private void montarLayout() {
         JPanel painelPrincipal = new JPanel(new BorderLayout(10, 10));
-        painelPrincipal.add(titulo, BorderLayout.NORTH);
+        painelPrincipal.setBorder(new EmptyBorder(12, 12, 12, 12));
+        painelPrincipal.setBackground(COR_FUNDO);
+        painelPrincipal.add(criarCabecalho(), BorderLayout.NORTH);
 
         abas.addTab("Animais", criarAbaAnimais());
         abas.addTab("Jaulas", criarAbaJaulas());
@@ -143,9 +165,9 @@ public class TelaPrincipal extends JFrame {
     }
 
     private JPanel criarAbaAnimais() {
-        JPanel painelAnimais = new JPanel(new BorderLayout(10, 10));
+        JPanel painelAnimais = criarPainelAba();
 
-        JPanel painelFormulario = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel painelFormulario = criarPainelSecao("Dados do animal", new GridLayout(6, 2, 8, 8));
         painelFormulario.add(new JLabel("Tipo:"));
         painelFormulario.add(comboTipoAnimal);
         painelFormulario.add(new JLabel("Nome:"));
@@ -159,25 +181,31 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(rotuloAtributoAnimal);
         painelFormulario.add(campoAtributoEspecifico);
 
-        JPanel painelBotoes = new JPanel(new GridLayout(1, 3, 10, 10));
+        JPanel painelBotoes = criarPainelSecao("Acoes", new FlowLayout(FlowLayout.CENTER, 10, 0));
         painelBotoes.add(botaoCadastrarAnimal);
         painelBotoes.add(botaoListarAnimais);
         painelBotoes.add(botaoExcluirAnimal);
 
         JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
+        painelSuperior.setOpaque(false);
         painelSuperior.add(painelFormulario, BorderLayout.CENTER);
         painelSuperior.add(painelBotoes, BorderLayout.SOUTH);
 
-        painelAnimais.add(painelSuperior, BorderLayout.NORTH);
-        painelAnimais.add(new JScrollPane(areaAnimais), BorderLayout.CENTER);
+        JPanel painelConteudo = new JPanel(new BorderLayout(10, 10));
+        painelConteudo.setOpaque(false);
+        painelConteudo.add(painelSuperior, BorderLayout.NORTH);
+        painelConteudo.add(criarPainelResultado(areaAnimais), BorderLayout.CENTER);
+
+        painelAnimais.add(criarTituloAba("Cadastro e consulta de animais"), BorderLayout.NORTH);
+        painelAnimais.add(painelConteudo, BorderLayout.CENTER);
 
         return painelAnimais;
     }
 
     private JPanel criarAbaJaulas() {
-        JPanel painelJaulas = new JPanel(new BorderLayout(10, 10));
+        JPanel painelJaulas = criarPainelAba();
 
-        JPanel painelFormulario = new JPanel(new GridLayout(5, 2, 5, 5));
+        JPanel painelFormulario = criarPainelSecao("Dados da jaula", new GridLayout(5, 2, 8, 8));
         painelFormulario.add(new JLabel("Tipo:"));
         painelFormulario.add(comboTipoJaula);
         painelFormulario.add(new JLabel("Numeracao:"));
@@ -189,25 +217,31 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(new JLabel("Atributo especifico (> 0):"));
         painelFormulario.add(campoAtributoEspecificoJaula);
 
-        JPanel painelBotoes = new JPanel(new GridLayout(1, 3, 10, 10));
+        JPanel painelBotoes = criarPainelSecao("Acoes", new FlowLayout(FlowLayout.CENTER, 10, 0));
         painelBotoes.add(botaoCadastrarJaula);
         painelBotoes.add(botaoListarJaulas);
         painelBotoes.add(botaoExcluirJaula);
 
         JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
+        painelSuperior.setOpaque(false);
         painelSuperior.add(painelFormulario, BorderLayout.CENTER);
         painelSuperior.add(painelBotoes, BorderLayout.SOUTH);
 
-        painelJaulas.add(painelSuperior, BorderLayout.NORTH);
-        painelJaulas.add(new JScrollPane(areaJaulas), BorderLayout.CENTER);
+        JPanel painelConteudo = new JPanel(new BorderLayout(10, 10));
+        painelConteudo.setOpaque(false);
+        painelConteudo.add(painelSuperior, BorderLayout.NORTH);
+        painelConteudo.add(criarPainelResultado(areaJaulas), BorderLayout.CENTER);
+
+        painelJaulas.add(criarTituloAba("Cadastro e consulta de jaulas"), BorderLayout.NORTH);
+        painelJaulas.add(painelConteudo, BorderLayout.CENTER);
 
         return painelJaulas;
     }
 
     private JPanel criarAbaAlocacoes() {
-        JPanel painelAlocacoes = new JPanel(new BorderLayout(10, 10));
+        JPanel painelAlocacoes = criarPainelAba();
 
-        JPanel painelFormulario = new JPanel(new GridLayout(3, 2, 5, 5));
+        JPanel painelFormulario = criarPainelSecao("Operacoes de alocacao", new GridLayout(3, 2, 8, 8));
         painelFormulario.add(new JLabel("Id do animal:"));
         painelFormulario.add(campoIdAnimalAlocacao);
         painelFormulario.add(new JLabel("Id da jaula origem (remover/trocar):"));
@@ -215,20 +249,108 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(new JLabel("Id da jaula destino (alocar/trocar):"));
         painelFormulario.add(campoIdJaulaDestinoAlocacao);
 
-        JPanel painelBotoes = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel painelBotoes = criarPainelSecao("Acoes", new FlowLayout(FlowLayout.CENTER, 10, 0));
         painelBotoes.add(botaoAlocarAnimal);
         painelBotoes.add(botaoRemoverAnimalDaJaula);
         painelBotoes.add(botaoTrocarAnimalDeJaula);
         painelBotoes.add(botaoListarAlocacoes);
 
         JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
+        painelSuperior.setOpaque(false);
         painelSuperior.add(painelFormulario, BorderLayout.CENTER);
         painelSuperior.add(painelBotoes, BorderLayout.SOUTH);
 
-        painelAlocacoes.add(painelSuperior, BorderLayout.NORTH);
-        painelAlocacoes.add(new JScrollPane(areaAlocacoes), BorderLayout.CENTER);
+        JPanel painelConteudo = new JPanel(new BorderLayout(10, 10));
+        painelConteudo.setOpaque(false);
+        painelConteudo.add(painelSuperior, BorderLayout.NORTH);
+        painelConteudo.add(criarPainelResultado(areaAlocacoes), BorderLayout.CENTER);
+
+        painelAlocacoes.add(criarTituloAba("Alocacao, remocao e troca de animais"), BorderLayout.NORTH);
+        painelAlocacoes.add(painelConteudo, BorderLayout.CENTER);
 
         return painelAlocacoes;
+    }
+
+    private JPanel criarCabecalho() {
+        JPanel painelCabecalho = new JPanel(new BorderLayout(5, 5));
+        painelCabecalho.setBackground(COR_FUNDO);
+        painelCabecalho.setBorder(new EmptyBorder(0, 0, 8, 0));
+
+        titulo.setFont(FONTE_TITULO);
+        titulo.setForeground(COR_TITULO);
+
+        JLabel subtitulo = new JLabel(
+            "Interface grafica do trabalho de Programacao Orientada a Objetos",
+            SwingConstants.CENTER
+        );
+        subtitulo.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        subtitulo.setForeground(new Color(90, 100, 110));
+
+        painelCabecalho.add(titulo, BorderLayout.CENTER);
+        painelCabecalho.add(subtitulo, BorderLayout.SOUTH);
+
+        return painelCabecalho;
+    }
+
+    private JPanel criarPainelAba() {
+        JPanel painel = new JPanel(new BorderLayout(10, 10));
+        painel.setBackground(COR_FUNDO);
+        painel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        return painel;
+    }
+
+    private JLabel criarTituloAba(String texto) {
+        JLabel label = new JLabel(texto);
+        label.setFont(FONTE_SUBTITULO);
+        label.setForeground(COR_TITULO);
+        label.setBorder(new EmptyBorder(0, 2, 4, 2));
+        return label;
+    }
+
+    private JPanel criarPainelSecao(String tituloSecao, java.awt.LayoutManager layout) {
+        JPanel painel = new JPanel(layout);
+        painel.setBackground(COR_PAINEL);
+        painel.setBorder(criarBordaSecao(tituloSecao));
+        return painel;
+    }
+
+    private JScrollPane criarPainelResultado(JTextArea areaTexto) {
+        JScrollPane scrollPane = new JScrollPane(areaTexto);
+        scrollPane.setBorder(criarBordaSecao("Resultado"));
+        return scrollPane;
+    }
+
+    private javax.swing.border.Border criarBordaSecao(String tituloSecao) {
+        TitledBorder bordaTitulo = BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(COR_BORDA),
+            tituloSecao
+        );
+        bordaTitulo.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
+        bordaTitulo.setTitleColor(COR_TITULO);
+
+        return BorderFactory.createCompoundBorder(
+            bordaTitulo,
+            new EmptyBorder(8, 8, 8, 8)
+        );
+    }
+
+    private void configurarAparenciaComponentes() {
+        configurarBotao(botaoCadastrarAnimal);
+        configurarBotao(botaoListarAnimais);
+        configurarBotao(botaoExcluirAnimal);
+        configurarBotao(botaoCadastrarJaula);
+        configurarBotao(botaoListarJaulas);
+        configurarBotao(botaoExcluirJaula);
+        configurarBotao(botaoAlocarAnimal);
+        configurarBotao(botaoRemoverAnimalDaJaula);
+        configurarBotao(botaoTrocarAnimalDeJaula);
+        configurarBotao(botaoListarAlocacoes);
+    }
+
+    private void configurarBotao(JButton botao) {
+        botao.setFocusPainted(false);
+        botao.setBackground(new Color(230, 237, 243));
+        botao.setForeground(new Color(30, 45, 55));
     }
 
     private void registrarEventos() {
