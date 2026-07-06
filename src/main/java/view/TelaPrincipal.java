@@ -63,6 +63,7 @@ public class TelaPrincipal extends JFrame {
     private JTextField campoNumeracaoJaula;
     private JTextField campoCapacidadeJaula;
     private JComboBox<NivelSeguranca> comboNivelSegurancaJaula;
+    private JLabel rotuloAtributoJaula;
     private JTextField campoAtributoEspecificoJaula;
     private JButton botaoCadastrarJaula;
     private JButton botaoListarJaulas;
@@ -121,6 +122,7 @@ public class TelaPrincipal extends JFrame {
         campoNumeracaoJaula = new JTextField();
         campoCapacidadeJaula = new JTextField();
         comboNivelSegurancaJaula = new JComboBox<NivelSeguranca>(NivelSeguranca.values());
+        rotuloAtributoJaula = new JLabel("Metros quadrados:");
         campoAtributoEspecificoJaula = new JTextField();
 
         botaoCadastrarJaula = new JButton("Cadastrar jaula");
@@ -220,7 +222,7 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(campoCapacidadeJaula);
         painelFormulario.add(new JLabel("Nivel de seguranca:"));
         painelFormulario.add(comboNivelSegurancaJaula);
-        painelFormulario.add(new JLabel("Atributo especifico (> 0):"));
+        painelFormulario.add(rotuloAtributoJaula);
         painelFormulario.add(campoAtributoEspecificoJaula);
 
         JPanel painelBotoes = criarPainelSecao("Acoes", new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -387,6 +389,13 @@ public class TelaPrincipal extends JFrame {
             }
         });
 
+        comboTipoJaula.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                atualizarRotuloAtributoJaula();
+            }
+        });
+
         botaoCadastrarAnimal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
@@ -512,6 +521,20 @@ public class TelaPrincipal extends JFrame {
         }
         else {
             rotuloAtributoAnimal.setText("Forca fisica (0 a 10):");
+        }
+    }
+
+    private void atualizarRotuloAtributoJaula() {
+        String tipo = (String) comboTipoJaula.getSelectedItem();
+
+        if ("AQUATICA".equals(tipo)) {
+            rotuloAtributoJaula.setText("Metros cúbicos de água:");
+        }
+        else if ("AEREA".equals(tipo)) {
+            rotuloAtributoJaula.setText("Metros altura:");
+        }
+        else {
+            rotuloAtributoJaula.setText("Metros quadrados:");
         }
     }
 
