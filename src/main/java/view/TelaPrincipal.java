@@ -381,6 +381,85 @@ public class TelaPrincipal extends JFrame {
         ));
     }
 
+    private void mostrarAviso(String mensagem) {
+        JOptionPane.showMessageDialog(
+            this,
+            mensagem,
+            "Aviso",
+            JOptionPane.WARNING_MESSAGE
+        );
+    }
+
+    private void mostrarErro(String mensagem) {
+        JOptionPane.showMessageDialog(
+            this,
+            mensagem,
+            "Erro",
+            JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    private boolean confirmarAcao(String mensagem) {
+        int resposta = JOptionPane.showConfirmDialog(
+            this,
+            mensagem,
+            "Confirmar acao",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+        );
+
+        return resposta == JOptionPane.YES_OPTION;
+    }
+
+    private void tratarResultadoOperacao(String resultado, JTextArea areaResultado) {
+        areaResultado.setText(resultado);
+
+        if (textoVazio(resultado)) {
+            return;
+        }
+
+        if (resultadoIndicaErroInesperado(resultado)) {
+            mostrarErro(resultado);
+        }
+        else if (resultadoIndicaUsoIncorreto(resultado)) {
+            mostrarAviso(resultado);
+        }
+    }
+
+    private void tratarResultadoListagem(String resultado, JTextArea areaResultado) {
+        areaResultado.setText(resultado);
+
+        if (!textoVazio(resultado) && resultadoIndicaErroInesperado(resultado)) {
+            mostrarErro(resultado);
+        }
+    }
+
+    private boolean resultadoIndicaErroInesperado(String resultado) {
+        String texto = resultado.toLowerCase();
+        return texto.startsWith("erro") || texto.contains("nao foi possivel");
+    }
+
+    private boolean resultadoIndicaUsoIncorreto(String resultado) {
+        String texto = resultado.toLowerCase();
+        return !texto.contains("sucesso") &&
+            !texto.contains("cancelada") &&
+            !resultadoIndicaErroInesperado(resultado);
+    }
+
+    private boolean textoVazio(String texto) {
+        return texto == null || texto.trim().isEmpty();
+    }
+
+    private boolean textoNumerico(String texto) {
+        try {
+            Long.parseLong(texto);
+            return true;
+        }
+        catch (NumberFormatException exception) {
+            return false;
+        }
+    }
+
     private void registrarEventos() {
         comboTipoAnimal.addActionListener(new ActionListener() {
             @Override
@@ -399,21 +478,22 @@ public class TelaPrincipal extends JFrame {
         botaoCadastrarAnimal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaAnimais.setText(animalController.cadastrarAnimal(
+                String resultado = animalController.cadastrarAnimal(
                     (String) comboTipoAnimal.getSelectedItem(),
                     campoNomeAnimal.getText(),
                     campoEspecieAnimal.getText(),
                     (Dieta) comboDietaAnimal.getSelectedItem(),
                     (Porte) comboPorteAnimal.getSelectedItem(),
                     campoAtributoEspecifico.getText()
-                ));
+                );
+                tratarResultadoOperacao(resultado, areaAnimais);
             }
         });
 
         botaoListarAnimais.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaAnimais.setText(animalController.listarAnimais());
+                tratarResultadoListagem(animalController.listarAnimais(), areaAnimais);
             }
         });
 
@@ -428,8 +508,14 @@ public class TelaPrincipal extends JFrame {
                 if (idAnimal == null) {
                     areaAnimais.setText("Exclusao de animal cancelada.");
                 }
+                else if (textoVazio(idAnimal) || !textoNumerico(idAnimal.trim())) {
+                    tratarResultadoOperacao(animalController.excluirAnimal(idAnimal.trim()), areaAnimais);
+                }
+                else if (!confirmarAcao("Tem certeza que deseja excluir o animal de id " + idAnimal.trim() + "?")) {
+                    areaAnimais.setText("Exclusao de animal cancelada.");
+                }
                 else {
-                    areaAnimais.setText(animalController.excluirAnimal(idAnimal));
+                    tratarResultadoOperacao(animalController.excluirAnimal(idAnimal.trim()), areaAnimais);
                 }
             }
         });
@@ -437,20 +523,21 @@ public class TelaPrincipal extends JFrame {
         botaoCadastrarJaula.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaJaulas.setText(jaulaController.cadastrarJaula(
+                String resultado = jaulaController.cadastrarJaula(
                     (String) comboTipoJaula.getSelectedItem(),
                     campoNumeracaoJaula.getText(),
                     campoCapacidadeJaula.getText(),
                     (NivelSeguranca) comboNivelSegurancaJaula.getSelectedItem(),
                     campoAtributoEspecificoJaula.getText()
-                ));
+                );
+                tratarResultadoOperacao(resultado, areaJaulas);
             }
         });
 
         botaoListarJaulas.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaJaulas.setText(jaulaController.listarJaulas());
+                tratarResultadoListagem(jaulaController.listarJaulas(), areaJaulas);
             }
         });
 
@@ -465,8 +552,14 @@ public class TelaPrincipal extends JFrame {
                 if (idJaula == null) {
                     areaJaulas.setText("Exclusao de jaula cancelada.");
                 }
+                else if (textoVazio(idJaula) || !textoNumerico(idJaula.trim())) {
+                    tratarResultadoOperacao(jaulaController.excluirJaula(idJaula.trim()), areaJaulas);
+                }
+                else if (!confirmarAcao("Tem certeza que deseja excluir a jaula de id " + idJaula.trim() + "?")) {
+                    areaJaulas.setText("Exclusao de jaula cancelada.");
+                }
                 else {
-                    areaJaulas.setText(jaulaController.excluirJaula(idJaula));
+                    tratarResultadoOperacao(jaulaController.excluirJaula(idJaula.trim()), areaJaulas);
                 }
             }
         });
@@ -474,38 +567,41 @@ public class TelaPrincipal extends JFrame {
         botaoAlocarAnimal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaAlocacoes.setText(alocacaoController.alocarAnimal(
+                String resultado = alocacaoController.alocarAnimal(
                     campoIdAnimalAlocacao.getText(),
                     campoIdJaulaDestinoAlocacao.getText()
-                ));
+                );
+                tratarResultadoOperacao(resultado, areaAlocacoes);
             }
         });
 
         botaoRemoverAnimalDaJaula.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaAlocacoes.setText(alocacaoController.removerAnimalDaJaula(
+                String resultado = alocacaoController.removerAnimalDaJaula(
                     campoIdAnimalAlocacao.getText(),
                     campoIdJaulaAlocacao.getText()
-                ));
+                );
+                tratarResultadoOperacao(resultado, areaAlocacoes);
             }
         });
 
         botaoTrocarAnimalDeJaula.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaAlocacoes.setText(alocacaoController.trocarAnimalDeJaula(
+                String resultado = alocacaoController.trocarAnimalDeJaula(
                     campoIdAnimalAlocacao.getText(),
                     campoIdJaulaAlocacao.getText(),
                     campoIdJaulaDestinoAlocacao.getText()
-                ));
+                );
+                tratarResultadoOperacao(resultado, areaAlocacoes);
             }
         });
 
         botaoListarAlocacoes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaAlocacoes.setText(alocacaoController.listarAlocacoes());
+                tratarResultadoListagem(alocacaoController.listarAlocacoes(), areaAlocacoes);
             }
         });
     }
