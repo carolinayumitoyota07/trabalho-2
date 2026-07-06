@@ -31,12 +31,16 @@ import model.Porte;
 
 public class TelaPrincipal extends JFrame {
 
-    private static final Color COR_FUNDO = new Color(244, 247, 250);
-    private static final Color COR_PAINEL = new Color(255, 255, 255);
-    private static final Color COR_TITULO = new Color(31, 73, 98);
-    private static final Color COR_RESULTADO = new Color(250, 252, 255);
-    private static final Color COR_BORDA = new Color(205, 215, 225);
-    private static final Font FONTE_TITULO = new Font("SansSerif", Font.BOLD, 20);
+    private static final Color COR_VERDE_ESCURO = new Color(24, 67, 48);
+    private static final Color COR_VERDE_MEDIO = new Color(49, 104, 73);
+    private static final Color COR_AMBAR = new Color(214, 161, 45);
+    private static final Color COR_CARVAO = new Color(36, 42, 38);
+    private static final Color COR_VERMELHO = new Color(145, 56, 48);
+    private static final Color COR_FUNDO = new Color(235, 241, 230);
+    private static final Color COR_PAINEL = new Color(253, 255, 250);
+    private static final Color COR_RESULTADO = new Color(249, 252, 244);
+    private static final Color COR_BORDA = new Color(176, 190, 165);
+    private static final Font FONTE_TITULO = new Font("SansSerif", Font.BOLD, 22);
     private static final Font FONTE_SUBTITULO = new Font("SansSerif", Font.BOLD, 14);
 
     private TelaPrincipalController controller;
@@ -90,7 +94,8 @@ public class TelaPrincipal extends JFrame {
     }
 
     private void configurarJanela() {
-        setTitle("Sistema de Gestao Jurassic Park");
+        setTitle("Sistema de Gestao de Animais Pre-Historicos");
+        setIconImage(AppIcone.criarImagem());
         setSize(900, 650);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -144,6 +149,7 @@ public class TelaPrincipal extends JFrame {
         area.setWrapStyleWord(true);
         area.setRows(12);
         area.setBackground(COR_RESULTADO);
+        area.setForeground(COR_CARVAO);
         area.setFont(new Font("Monospaced", Font.PLAIN, 12));
         area.setBorder(new EmptyBorder(8, 8, 8, 8));
         area.setText(textoInicial);
@@ -273,18 +279,21 @@ public class TelaPrincipal extends JFrame {
 
     private JPanel criarCabecalho() {
         JPanel painelCabecalho = new JPanel(new BorderLayout(5, 5));
-        painelCabecalho.setBackground(COR_FUNDO);
-        painelCabecalho.setBorder(new EmptyBorder(0, 0, 8, 0));
+        painelCabecalho.setBackground(COR_VERDE_ESCURO);
+        painelCabecalho.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, 4, 0, COR_AMBAR),
+            new EmptyBorder(12, 12, 12, 12)
+        ));
 
         titulo.setFont(FONTE_TITULO);
-        titulo.setForeground(COR_TITULO);
+        titulo.setForeground(COR_AMBAR);
 
         JLabel subtitulo = new JLabel(
-            "Interface grafica do trabalho de Programacao Orientada a Objetos",
+            "Controle de animais, jaulas e alocacoes",
             SwingConstants.CENTER
         );
-        subtitulo.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        subtitulo.setForeground(new Color(90, 100, 110));
+        subtitulo.setFont(new Font("SansSerif", Font.BOLD, 12));
+        subtitulo.setForeground(new Color(239, 244, 228));
 
         painelCabecalho.add(titulo, BorderLayout.CENTER);
         painelCabecalho.add(subtitulo, BorderLayout.SOUTH);
@@ -302,7 +311,7 @@ public class TelaPrincipal extends JFrame {
     private JLabel criarTituloAba(String texto) {
         JLabel label = new JLabel(texto);
         label.setFont(FONTE_SUBTITULO);
-        label.setForeground(COR_TITULO);
+        label.setForeground(COR_VERDE_ESCURO);
         label.setBorder(new EmptyBorder(0, 2, 4, 2));
         return label;
     }
@@ -326,7 +335,7 @@ public class TelaPrincipal extends JFrame {
             tituloSecao
         );
         bordaTitulo.setTitleFont(new Font("SansSerif", Font.BOLD, 12));
-        bordaTitulo.setTitleColor(COR_TITULO);
+        bordaTitulo.setTitleColor(COR_VERDE_ESCURO);
 
         return BorderFactory.createCompoundBorder(
             bordaTitulo,
@@ -335,22 +344,39 @@ public class TelaPrincipal extends JFrame {
     }
 
     private void configurarAparenciaComponentes() {
-        configurarBotao(botaoCadastrarAnimal);
-        configurarBotao(botaoListarAnimais);
-        configurarBotao(botaoExcluirAnimal);
-        configurarBotao(botaoCadastrarJaula);
-        configurarBotao(botaoListarJaulas);
-        configurarBotao(botaoExcluirJaula);
-        configurarBotao(botaoAlocarAnimal);
-        configurarBotao(botaoRemoverAnimalDaJaula);
-        configurarBotao(botaoTrocarAnimalDeJaula);
-        configurarBotao(botaoListarAlocacoes);
+        configurarBotaoPrincipal(botaoCadastrarAnimal);
+        configurarBotaoNeutro(botaoListarAnimais);
+        configurarBotaoExclusao(botaoExcluirAnimal);
+        configurarBotaoPrincipal(botaoCadastrarJaula);
+        configurarBotaoNeutro(botaoListarJaulas);
+        configurarBotaoExclusao(botaoExcluirJaula);
+        configurarBotaoPrincipal(botaoAlocarAnimal);
+        configurarBotaoNeutro(botaoRemoverAnimalDaJaula);
+        configurarBotaoPrincipal(botaoTrocarAnimalDeJaula);
+        configurarBotaoNeutro(botaoListarAlocacoes);
     }
 
-    private void configurarBotao(JButton botao) {
+    private void configurarBotaoPrincipal(JButton botao) {
+        configurarBotao(botao, COR_VERDE_MEDIO, Color.WHITE);
+    }
+
+    private void configurarBotaoNeutro(JButton botao) {
+        configurarBotao(botao, new Color(222, 228, 215), COR_CARVAO);
+    }
+
+    private void configurarBotaoExclusao(JButton botao) {
+        configurarBotao(botao, COR_VERMELHO, Color.WHITE);
+    }
+
+    private void configurarBotao(JButton botao, Color fundo, Color texto) {
         botao.setFocusPainted(false);
-        botao.setBackground(new Color(230, 237, 243));
-        botao.setForeground(new Color(30, 45, 55));
+        botao.setBackground(fundo);
+        botao.setForeground(texto);
+        botao.setOpaque(true);
+        botao.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COR_CARVAO),
+            new EmptyBorder(5, 10, 5, 10)
+        ));
     }
 
     private void registrarEventos() {
