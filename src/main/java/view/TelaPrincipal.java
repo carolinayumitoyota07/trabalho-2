@@ -46,7 +46,6 @@ public class TelaPrincipal extends JFrame {
     private JTextField campoCapacidadeJaula;
     private JComboBox<NivelSeguranca> comboNivelSegurancaJaula;
     private JTextField campoAtributoEspecificoJaula;
-    private JTextField campoIdExcluirJaula;
     private JButton botaoCadastrarJaula;
     private JButton botaoListarJaulas;
     private JButton botaoExcluirJaula;
@@ -104,7 +103,6 @@ public class TelaPrincipal extends JFrame {
         campoCapacidadeJaula = new JTextField();
         comboNivelSegurancaJaula = new JComboBox<NivelSeguranca>(NivelSeguranca.values());
         campoAtributoEspecificoJaula = new JTextField();
-        campoIdExcluirJaula = new JTextField();
 
         botaoCadastrarJaula = new JButton("Cadastrar jaula");
         botaoListarJaulas = new JButton("Listar jaulas");
@@ -179,7 +177,7 @@ public class TelaPrincipal extends JFrame {
     private JPanel criarAbaJaulas() {
         JPanel painelJaulas = new JPanel(new BorderLayout(10, 10));
 
-        JPanel painelFormulario = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel painelFormulario = new JPanel(new GridLayout(5, 2, 5, 5));
         painelFormulario.add(new JLabel("Tipo:"));
         painelFormulario.add(comboTipoJaula);
         painelFormulario.add(new JLabel("Numeracao:"));
@@ -190,8 +188,6 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(comboNivelSegurancaJaula);
         painelFormulario.add(new JLabel("Atributo especifico (> 0):"));
         painelFormulario.add(campoAtributoEspecificoJaula);
-        painelFormulario.add(new JLabel("Id da jaula para excluir:"));
-        painelFormulario.add(campoIdExcluirJaula);
 
         JPanel painelBotoes = new JPanel(new GridLayout(1, 3, 10, 10));
         painelBotoes.add(botaoCadastrarJaula);
@@ -304,7 +300,17 @@ public class TelaPrincipal extends JFrame {
         botaoExcluirJaula.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
-                areaJaulas.setText(jaulaController.excluirJaula(campoIdExcluirJaula.getText()));
+                String idJaula = JOptionPane.showInputDialog(
+                    TelaPrincipal.this,
+                    "Informe o id da jaula a ser excluida"
+                );
+
+                if (idJaula == null) {
+                    areaJaulas.setText("Exclusao de jaula cancelada.");
+                }
+                else {
+                    areaJaulas.setText(jaulaController.excluirJaula(idJaula));
+                }
             }
         });
 
