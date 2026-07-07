@@ -1,10 +1,7 @@
 package controller;
 
 import dao.JaulaDAO;
-import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import model.AnimalPreHistorico;
 import model.Jaula;
 import model.JaulaAerea;
@@ -82,53 +79,58 @@ public class JaulaController {
                 return "Nenhuma jaula cadastrada.";
             }
 
-            return montarListagemJaulas(jaulas, "Jaulas cadastradas:");
+            StringBuilder listagem = new StringBuilder();
+            listagem.append("Jaulas cadastradas:\n\n");
+
+            for (Jaula jaula : jaulas) {
+                listagem.append("Id da jaula: ")
+                    .append(jaula.getId())
+                    .append("\n");
+                listagem.append("Tipo da jaula: ")
+                    .append(jaula.getClass().getSimpleName())
+                    .append("\n");
+                listagem.append("Numeracao informada: ")
+                    .append(jaula.getNumeracao())
+                    .append("\n");
+                listagem.append("Capacidade: ")
+                    .append(jaula.getCapacidade())
+                    .append("\n");
+                listagem.append("Nivel de seguranca: ")
+                    .append(jaula.getNivelSeguranca())
+                    .append("\n");
+                listagem.append("Quantidade de animais alocados: ")
+                    .append(jaula.getAnimaisAlocados().size())
+                    .append("\n");
+
+                if (jaula.getAnimaisAlocados().isEmpty()) {
+                    listagem.append("Sem animais alocados.\n\n");
+                }
+                else {
+                    listagem.append("Animais alocados:\n");
+
+                    for (AnimalPreHistorico animal : jaula.getAnimaisAlocados()) {
+                        listagem.append("- ID/Codigo do animal: ")
+                            .append(animal.getId())
+                            .append("\n");
+                        listagem.append("  Nome: ")
+                            .append(animal.getNome())
+                            .append("\n");
+                        listagem.append("  Especie: ")
+                            .append(animal.getEspecie())
+                            .append("\n");
+                        listagem.append("  Tipo do animal: ")
+                            .append(animal.getClass().getSimpleName())
+                            .append("\n");
+                    }
+
+                    listagem.append("\n");
+                }
+            }
+
+            return listagem.toString();
         }
         catch (RuntimeException exception) {
             return "Nao foi possivel listar as jaulas.";
-        }
-    }
-
-    public String buscarJaulas(String idTexto, String tipoFiltro) {
-        try {
-            String idBusca = idTexto == null ? "" : idTexto.trim();
-            String tipoBusca = normalizarFiltroTipo(tipoFiltro);
-
-            if (campoVazio(idBusca) && campoVazio(tipoBusca)) {
-                return listarJaulas();
-            }
-
-            List<Jaula> jaulasEncontradas = new ArrayList<Jaula>();
-
-            if (!campoVazio(idBusca)) {
-                Long id = Long.parseLong(idBusca);
-                Jaula jaula = jaulaDAO.buscarPorId(id);
-
-                if (jaula != null && jaulaAtendeTipo(jaula, tipoBusca)) {
-                    jaulasEncontradas.add(jaula);
-                }
-            }
-            else {
-                List<Jaula> jaulas = jaulaDAO.listarTodas();
-
-                for (Jaula jaula : jaulas) {
-                    if (jaulaAtendeTipo(jaula, tipoBusca)) {
-                        jaulasEncontradas.add(jaula);
-                    }
-                }
-            }
-
-            if (jaulasEncontradas.isEmpty()) {
-                return "Nenhuma jaula encontrada para os filtros informados.";
-            }
-
-            return montarListagemJaulas(jaulasEncontradas, "Jaulas encontradas:");
-        }
-        catch (NumberFormatException exception) {
-            return "O id da jaula deve ser numerico.";
-        }
-        catch (RuntimeException exception) {
-            return "Nao foi possivel buscar as jaulas.";
         }
     }
 
@@ -195,99 +197,6 @@ public class JaulaController {
         }
 
         return null;
-    }
-
-    private String montarListagemJaulas(List<Jaula> jaulas, String titulo) {
-        StringBuilder listagem = new StringBuilder();
-        listagem.append(titulo)
-            .append("\n\n");
-
-        for (Jaula jaula : jaulas) {
-            listagem.append("Id da jaula: ")
-                .append(jaula.getId())
-                .append("\n");
-            listagem.append("Tipo da jaula: ")
-                .append(jaula.getClass().getSimpleName())
-                .append("\n");
-            listagem.append("Numeracao informada: ")
-                .append(jaula.getNumeracao())
-                .append("\n");
-            listagem.append("Capacidade: ")
-                .append(jaula.getCapacidade())
-                .append("\n");
-            listagem.append("Nivel de seguranca: ")
-                .append(jaula.getNivelSeguranca())
-                .append("\n");
-            listagem.append("Quantidade de animais alocados: ")
-                .append(jaula.getAnimaisAlocados().size())
-                .append("\n");
-
-            if (jaula.getAnimaisAlocados().isEmpty()) {
-                listagem.append("Sem animais alocados.\n\n");
-            }
-            else {
-                listagem.append("Animais alocados:\n");
-
-                for (AnimalPreHistorico animal : jaula.getAnimaisAlocados()) {
-                    listagem.append("- ID/Codigo do animal: ")
-                        .append(animal.getId())
-                        .append("\n");
-                    listagem.append("  Nome: ")
-                        .append(animal.getNome())
-                        .append("\n");
-                    listagem.append("  Especie: ")
-                        .append(animal.getEspecie())
-                        .append("\n");
-                    listagem.append("  Tipo do animal: ")
-                        .append(animal.getClass().getSimpleName())
-                        .append("\n");
-                }
-
-                listagem.append("\n");
-            }
-        }
-
-        return listagem.toString();
-    }
-
-    private boolean jaulaAtendeTipo(Jaula jaula, String tipoBusca) {
-        if (campoVazio(tipoBusca)) {
-            return true;
-        }
-
-        if ("TERRESTRE".equals(tipoBusca)) {
-            return jaula instanceof JaulaTerrestre;
-        }
-
-        if ("AQUATICA".equals(tipoBusca)) {
-            return jaula instanceof JaulaAquatica;
-        }
-
-        if ("AEREA".equals(tipoBusca)) {
-            return jaula instanceof JaulaAerea;
-        }
-
-        return false;
-    }
-
-    private String normalizarFiltroTipo(String tipoFiltro) {
-        String tipo = normalizarTexto(tipoFiltro).toUpperCase(Locale.ROOT);
-
-        if ("TODOS".equals(tipo)) {
-            return "";
-        }
-
-        return tipo;
-    }
-
-    private String normalizarTexto(String texto) {
-        if (texto == null) {
-            return "";
-        }
-
-        return Normalizer
-            .normalize(texto.trim(), Normalizer.Form.NFD)
-            .replaceAll("\\p{M}", "");
     }
 
     private boolean numeracaoValida(String numeracao) {
