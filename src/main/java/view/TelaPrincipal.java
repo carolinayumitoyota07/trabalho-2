@@ -60,6 +60,11 @@ public class TelaPrincipal extends JFrame {
     private JButton botaoCadastrarAnimal;
     private JButton botaoListarAnimais;
     private JButton botaoExcluirAnimal;
+    private JTextField campoBuscaIdAnimal;
+    private JTextField campoBuscaNomeAnimal;
+    private JComboBox<String> comboFiltroTipoAnimal;
+    private JButton botaoBuscarAnimais;
+    private JButton botaoLimparBuscaAnimais;
     private JComboBox<String> comboTipoJaula;
     private JTextField campoNumeracaoJaula;
     private JTextField campoCapacidadeJaula;
@@ -69,6 +74,10 @@ public class TelaPrincipal extends JFrame {
     private JButton botaoCadastrarJaula;
     private JButton botaoListarJaulas;
     private JButton botaoExcluirJaula;
+    private JTextField campoBuscaIdJaula;
+    private JComboBox<String> comboFiltroTipoJaula;
+    private JButton botaoBuscarJaulas;
+    private JButton botaoLimparBuscaJaulas;
     private JTextField campoIdAnimalAlocacao;
     private JTextField campoIdJaulaAlocacao;
     private JTextField campoIdJaulaDestinoAlocacao;
@@ -118,6 +127,13 @@ public class TelaPrincipal extends JFrame {
         botaoCadastrarAnimal = new JButton("Cadastrar animal");
         botaoListarAnimais = new JButton("Listar animais");
         botaoExcluirAnimal = new JButton("Excluir animal");
+        campoBuscaIdAnimal = new JTextField();
+        campoBuscaNomeAnimal = new JTextField();
+        comboFiltroTipoAnimal = new JComboBox<String>(
+            new String[] {"Todos", "Terrestre", "Aquático", "Aéreo"}
+        );
+        botaoBuscarAnimais = new JButton("Buscar/filtrar animais");
+        botaoLimparBuscaAnimais = new JButton("Limpar busca");
 
         comboTipoJaula = new JComboBox<String>(new String[] {"TERRESTRE", "AQUÁTICA", "AÉREA"});
         campoNumeracaoJaula = new JTextField();
@@ -129,6 +145,12 @@ public class TelaPrincipal extends JFrame {
         botaoCadastrarJaula = new JButton("Cadastrar jaula");
         botaoListarJaulas = new JButton("Listar jaulas");
         botaoExcluirJaula = new JButton("Excluir jaula");
+        campoBuscaIdJaula = new JTextField();
+        comboFiltroTipoJaula = new JComboBox<String>(
+            new String[] {"Todos", "Terrestre", "Aquática", "Aérea"}
+        );
+        botaoBuscarJaulas = new JButton("Buscar/filtrar jaulas");
+        botaoLimparBuscaJaulas = new JButton("Limpar busca");
 
         campoIdAnimalAlocacao = new JTextField();
         campoIdJaulaAlocacao = new JTextField();
@@ -195,10 +217,15 @@ public class TelaPrincipal extends JFrame {
         painelBotoes.add(botaoListarAnimais);
         painelBotoes.add(botaoExcluirAnimal);
 
+        JPanel painelCadastro = new JPanel(new BorderLayout(10, 10));
+        painelCadastro.setOpaque(false);
+        painelCadastro.add(painelFormulario, BorderLayout.CENTER);
+        painelCadastro.add(painelBotoes, BorderLayout.SOUTH);
+
         JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
         painelSuperior.setOpaque(false);
-        painelSuperior.add(painelFormulario, BorderLayout.CENTER);
-        painelSuperior.add(painelBotoes, BorderLayout.SOUTH);
+        painelSuperior.add(painelCadastro, BorderLayout.NORTH);
+        painelSuperior.add(criarPainelBuscaAnimais(), BorderLayout.CENTER);
 
         JPanel painelConteudo = new JPanel(new BorderLayout(10, 10));
         painelConteudo.setOpaque(false);
@@ -231,10 +258,15 @@ public class TelaPrincipal extends JFrame {
         painelBotoes.add(botaoListarJaulas);
         painelBotoes.add(botaoExcluirJaula);
 
+        JPanel painelCadastro = new JPanel(new BorderLayout(10, 10));
+        painelCadastro.setOpaque(false);
+        painelCadastro.add(painelFormulario, BorderLayout.CENTER);
+        painelCadastro.add(painelBotoes, BorderLayout.SOUTH);
+
         JPanel painelSuperior = new JPanel(new BorderLayout(10, 10));
         painelSuperior.setOpaque(false);
-        painelSuperior.add(painelFormulario, BorderLayout.CENTER);
-        painelSuperior.add(painelBotoes, BorderLayout.SOUTH);
+        painelSuperior.add(painelCadastro, BorderLayout.NORTH);
+        painelSuperior.add(criarPainelBuscaJaulas(), BorderLayout.CENTER);
 
         JPanel painelConteudo = new JPanel(new BorderLayout(10, 10));
         painelConteudo.setOpaque(false);
@@ -245,6 +277,50 @@ public class TelaPrincipal extends JFrame {
         painelJaulas.add(painelConteudo, BorderLayout.CENTER);
 
         return painelJaulas;
+    }
+
+    private JPanel criarPainelBuscaAnimais() {
+        JPanel painelBusca = criarPainelSecao("Busca e filtros", new BorderLayout(8, 8));
+
+        JPanel painelCampos = new JPanel(new GridLayout(3, 2, 8, 8));
+        painelCampos.setOpaque(false);
+        painelCampos.add(new JLabel("Buscar por ID:"));
+        painelCampos.add(campoBuscaIdAnimal);
+        painelCampos.add(new JLabel("Buscar por nome:"));
+        painelCampos.add(campoBuscaNomeAnimal);
+        painelCampos.add(new JLabel("Filtrar por tipo:"));
+        painelCampos.add(comboFiltroTipoAnimal);
+
+        JPanel painelBotoesBusca = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        painelBotoesBusca.setOpaque(false);
+        painelBotoesBusca.add(botaoBuscarAnimais);
+        painelBotoesBusca.add(botaoLimparBuscaAnimais);
+
+        painelBusca.add(painelCampos, BorderLayout.CENTER);
+        painelBusca.add(painelBotoesBusca, BorderLayout.SOUTH);
+
+        return painelBusca;
+    }
+
+    private JPanel criarPainelBuscaJaulas() {
+        JPanel painelBusca = criarPainelSecao("Busca e filtros", new BorderLayout(8, 8));
+
+        JPanel painelCampos = new JPanel(new GridLayout(2, 2, 8, 8));
+        painelCampos.setOpaque(false);
+        painelCampos.add(new JLabel("Buscar por ID:"));
+        painelCampos.add(campoBuscaIdJaula);
+        painelCampos.add(new JLabel("Filtrar por tipo:"));
+        painelCampos.add(comboFiltroTipoJaula);
+
+        JPanel painelBotoesBusca = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        painelBotoesBusca.setOpaque(false);
+        painelBotoesBusca.add(botaoBuscarJaulas);
+        painelBotoesBusca.add(botaoLimparBuscaJaulas);
+
+        painelBusca.add(painelCampos, BorderLayout.CENTER);
+        painelBusca.add(painelBotoesBusca, BorderLayout.SOUTH);
+
+        return painelBusca;
     }
 
     private JPanel criarAbaAlocacoes() {
@@ -350,9 +426,13 @@ public class TelaPrincipal extends JFrame {
         configurarBotaoPrincipal(botaoCadastrarAnimal);
         configurarBotaoNeutro(botaoListarAnimais);
         configurarBotaoExclusao(botaoExcluirAnimal);
+        configurarBotaoPrincipal(botaoBuscarAnimais);
+        configurarBotaoNeutro(botaoLimparBuscaAnimais);
         configurarBotaoPrincipal(botaoCadastrarJaula);
         configurarBotaoNeutro(botaoListarJaulas);
         configurarBotaoExclusao(botaoExcluirJaula);
+        configurarBotaoPrincipal(botaoBuscarJaulas);
+        configurarBotaoNeutro(botaoLimparBuscaJaulas);
         configurarBotaoPrincipal(botaoAlocarAnimal);
         configurarBotaoNeutro(botaoRemoverAnimalDaJaula);
         configurarBotaoPrincipal(botaoTrocarAnimalDeJaula);
@@ -435,6 +515,21 @@ public class TelaPrincipal extends JFrame {
         }
     }
 
+    private void tratarResultadoBusca(String resultado, JTextArea areaResultado) {
+        areaResultado.setText(resultado);
+
+        if (textoVazio(resultado)) {
+            return;
+        }
+
+        if (resultadoIndicaErroInesperado(resultado)) {
+            mostrarErro(resultado);
+        }
+        else if (resultadoIndicaAvisoBusca(resultado)) {
+            mostrarAviso(resultado);
+        }
+    }
+
     private boolean resultadoIndicaErroInesperado(String resultado) {
         String texto = normalizarTexto(resultado).toLowerCase();
         return texto.startsWith("erro") || texto.contains("nao foi possivel");
@@ -445,6 +540,13 @@ public class TelaPrincipal extends JFrame {
         return !texto.contains("sucesso") &&
             !texto.contains("cancelada") &&
             !resultadoIndicaErroInesperado(resultado);
+    }
+
+    private boolean resultadoIndicaAvisoBusca(String resultado) {
+        String texto = normalizarTexto(resultado).toLowerCase();
+        return texto.contains("deve ser numerico") ||
+            texto.startsWith("nenhum animal encontrado") ||
+            texto.startsWith("nenhuma jaula encontrada");
     }
 
     private boolean textoVazio(String texto) {
@@ -498,6 +600,25 @@ public class TelaPrincipal extends JFrame {
             }
         });
 
+        botaoBuscarAnimais.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                String resultado = animalController.buscarAnimais(
+                    campoBuscaIdAnimal.getText(),
+                    campoBuscaNomeAnimal.getText(),
+                    obterFiltroTipoAnimalSelecionado()
+                );
+                tratarResultadoBusca(resultado, areaAnimais);
+            }
+        });
+
+        botaoLimparBuscaAnimais.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                limparBuscaAnimais();
+            }
+        });
+
         botaoExcluirAnimal.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evento) {
@@ -539,6 +660,24 @@ public class TelaPrincipal extends JFrame {
             @Override
             public void actionPerformed(ActionEvent evento) {
                 tratarResultadoListagem(jaulaController.listarJaulas(), areaJaulas);
+            }
+        });
+
+        botaoBuscarJaulas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                String resultado = jaulaController.buscarJaulas(
+                    campoBuscaIdJaula.getText(),
+                    obterFiltroTipoJaulaSelecionado()
+                );
+                tratarResultadoBusca(resultado, areaJaulas);
+            }
+        });
+
+        botaoLimparBuscaJaulas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evento) {
+                limparBuscaJaulas();
             }
         });
 
@@ -645,8 +784,29 @@ public class TelaPrincipal extends JFrame {
         return normalizarTipo((String) comboTipoAnimal.getSelectedItem());
     }
 
+    private String obterFiltroTipoAnimalSelecionado() {
+        return normalizarTipo((String) comboFiltroTipoAnimal.getSelectedItem());
+    }
+
     private String obterTipoJaulaSelecionada() {
         return normalizarTipo((String) comboTipoJaula.getSelectedItem());
+    }
+
+    private String obterFiltroTipoJaulaSelecionado() {
+        return normalizarTipo((String) comboFiltroTipoJaula.getSelectedItem());
+    }
+
+    private void limparBuscaAnimais() {
+        campoBuscaIdAnimal.setText("");
+        campoBuscaNomeAnimal.setText("");
+        comboFiltroTipoAnimal.setSelectedIndex(0);
+        tratarResultadoListagem(animalController.listarAnimais(), areaAnimais);
+    }
+
+    private void limparBuscaJaulas() {
+        campoBuscaIdJaula.setText("");
+        comboFiltroTipoJaula.setSelectedIndex(0);
+        tratarResultadoListagem(jaulaController.listarJaulas(), areaJaulas);
     }
 
     private String normalizarTipo(String tipo) {

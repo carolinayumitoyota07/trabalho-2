@@ -2,7 +2,10 @@ package controller;
 
 import dao.AnimalDAO;
 import dao.JaulaDAO;
+import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import model.AnimalAereoPreHistorico;
 import model.AnimalAquaticoPreHistorico;
 import model.AnimalPreHistorico;
@@ -100,41 +103,54 @@ public class AnimalController {
                 return "Nenhum animal cadastrado.";
             }
 
-            List<Jaula> jaulas = jaulaDAO.listarTodas();
-            StringBuilder listagem = new StringBuilder();
-            listagem.append("Animais cadastrados:\n\n");
-
-            for (AnimalPreHistorico animal : animais) {
-                listagem.append("ID/Codigo do animal: ")
-                    .append(animal.getId())
-                    .append("\n");
-                listagem.append("Nome: ")
-                    .append(animal.getNome())
-                    .append("\n");
-                listagem.append("Especie: ")
-                    .append(animal.getEspecie())
-                    .append("\n");
-                listagem.append("Dieta: ")
-                    .append(animal.getDieta())
-                    .append("\n");
-                listagem.append("Porte: ")
-                    .append(animal.getPorte())
-                    .append("\n");
-                listagem.append("Tipo: ")
-                    .append(animal.getClass().getSimpleName())
-                    .append("\n");
-                listagem.append("Grau de perigo: ")
-                    .append(animal.getGrauPerigo())
-                    .append("\n");
-                listagem.append("Jaula: ")
-                    .append(obterJaulaDoAnimal(animal, jaulas))
-                    .append("\n\n");
-            }
-
-            return listagem.toString();
+            return montarListagemAnimais(animais, "Animais cadastrados:");
         }
         catch (RuntimeException exception) {
             return "Nao foi possivel listar os animais.";
+        }
+    }
+
+    public String buscarAnimais(String idTexto, String nomeTexto, String tipoFiltro) {
+        try {
+            String idBusca = idTexto == null ? "" : idTexto.trim();
+            String nomeBusca = nomeTexto == null ? "" : nomeTexto.trim();
+            String tipoBusca = normalizarFiltroTipo(tipoFiltro);
+
+            if (campoVazio(idBusca) && campoVazio(nomeBusca) && campoVazio(tipoBusca)) {
+                return listarAnimais();
+            }
+
+            List<AnimalPreHistorico> animaisEncontrados = new ArrayList<AnimalPreHistorico>();
+
+            if (!campoVazio(idBusca)) {
+                Long id = Long.parseLong(idBusca);
+                AnimalPreHistorico animal = animalDAO.buscarPorId(id);
+
+                if (animal != null && animalAtendeFiltros(animal, nomeBusca, tipoBusca)) {
+                    animaisEncontrados.add(animal);
+                }
+            }
+            else {
+                List<AnimalPreHistorico> animais = animalDAO.listarTodos();
+
+                for (AnimalPreHistorico animal : animais) {
+                    if (animalAtendeFiltros(animal, nomeBusca, tipoBusca)) {
+                        animaisEncontrados.add(animal);
+                    }
+                }
+            }
+
+            if (animaisEncontrados.isEmpty()) {
+                return "Nenhum animal encontrado para os filtros informados.";
+            }
+
+            return montarListagemAnimais(animaisEncontrados, "Animais encontrados:");
+        }
+        catch (NumberFormatException exception) {
+            return "O id do animal deve ser numerico.";
+        }
+        catch (RuntimeException exception) {
+            return "Nao foi possivel buscar os animais.";
         }
     }
 
@@ -230,6 +246,101 @@ public class AnimalController {
         }
 
         return "sem jaula";
+    }
+
+    private String montarListagemAnimais(List<AnimalPreHistorico> animais, String titulo) {
+        List<Jaula> jaulas = jaulaDAO.listarTodas();
+        StringBuilder listagem = new StringBuilder();
+        listagem.append(titulo)
+            .append("\n\n");
+
+        for (AnimalPreHistorico animal : animais) {
+            listagem.append("ID/Codigo do animal: ")
+                .append(animal.getId())
+                .append("\n");
+            listagem.append("Nome: ")
+                .append(animal.getNome())
+                .append("\n");
+            listagem.append("Especie: ")
+                .append(animal.getEspecie())
+                .append("\n");
+            listagem.append("Dieta: ")
+                .append(animal.getDieta())
+                .append("\n");
+            listagem.append("Porte: ")
+                .append(animal.getPorte())
+                .append("\n");
+            listagem.append("Tipo: ")
+                .append(animal.getClass().getSimpleName())
+                .append("\n");
+            listagem.append("Grau de perigo: ")
+                .append(animal.getGrauPerigo())
+                .append("\n");
+            listagem.append("Jaula: ")
+                .append(obterJaulaDoAnimal(animal, jaulas))
+                .append("\n\n");
+        }
+
+        return listagem.toString();
+    }
+
+    private boolean animalAtendeFiltros(
+        AnimalPreHistorico animal,
+        String nomeBusca,
+        String tipoBusca
+    ) {
+        return animalAtendeNome(animal, nomeBusca) && animalAtendeTipo(animal, tipoBusca);
+    }
+
+    private boolean animalAtendeNome(AnimalPreHistorico animal, String nomeBusca) {
+        if (campoVazio(nomeBusca)) {
+            return true;
+        }
+
+        String nomeAnimal = normalizarTexto(animal.getNome()).toLowerCase(Locale.ROOT);
+        String nomeFiltro = normalizarTexto(nomeBusca).toLowerCase(Locale.ROOT);
+
+        return nomeAnimal.contains(nomeFiltro);
+    }
+
+    private boolean animalAtendeTipo(AnimalPreHistorico animal, String tipoBusca) {
+        if (campoVazio(tipoBusca)) {
+            return true;
+        }
+
+        if ("TERRESTRE".equals(tipoBusca)) {
+            return animal instanceof AnimalTerrestrePreHistorico;
+        }
+
+        if ("AQUATICO".equals(tipoBusca)) {
+            return animal instanceof AnimalAquaticoPreHistorico;
+        }
+
+        if ("AEREO".equals(tipoBusca)) {
+            return animal instanceof AnimalAereoPreHistorico;
+        }
+
+        return false;
+    }
+
+    private String normalizarFiltroTipo(String tipoFiltro) {
+        String tipo = normalizarTexto(tipoFiltro).toUpperCase(Locale.ROOT);
+
+        if ("TODOS".equals(tipo)) {
+            return "";
+        }
+
+        return tipo;
+    }
+
+    private String normalizarTexto(String texto) {
+        if (texto == null) {
+            return "";
+        }
+
+        return Normalizer
+            .normalize(texto.trim(), Normalizer.Form.NFD)
+            .replaceAll("\\p{M}", "");
     }
 
     private boolean animalEstaAlocado(Long idAnimal) {
