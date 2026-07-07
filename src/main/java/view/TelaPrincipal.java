@@ -3,7 +3,6 @@ package view;
 import controller.AnimalController;
 import controller.AlocacaoController;
 import controller.JaulaController;
-import controller.TelaPrincipalController;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -44,7 +43,6 @@ public class TelaPrincipal extends JFrame {
     private static final Font FONTE_TITULO = new Font("SansSerif", Font.BOLD, 22);
     private static final Font FONTE_SUBTITULO = new Font("SansSerif", Font.BOLD, 14);
 
-    private TelaPrincipalController controller;
     private AnimalController animalController;
     private AlocacaoController alocacaoController;
     private JaulaController jaulaController;
@@ -81,11 +79,6 @@ public class TelaPrincipal extends JFrame {
     private JTextArea areaAlocacoes;
 
     public TelaPrincipal() {
-        this(new TelaPrincipalController());
-    }
-
-    public TelaPrincipal(TelaPrincipalController controller) {
-        this.controller = controller;
         animalController = new AnimalController();
         alocacaoController = new AlocacaoController();
         jaulaController = new JaulaController();
@@ -104,7 +97,7 @@ public class TelaPrincipal extends JFrame {
     }
 
     private void inicializarComponentes() {
-        titulo = new JLabel("Sistema de Gestâo de Animais Pre-Históricos", SwingConstants.CENTER);
+        titulo = new JLabel("Sistema de Gestão de Animais Pre-Históricos", SwingConstants.CENTER);
         abas = new JTabbedPane();
 
         comboTipoAnimal = new JComboBox<String>(new String[] {"TERRESTRE", "AQUÁTICO", "AÉREO"});
@@ -138,7 +131,7 @@ public class TelaPrincipal extends JFrame {
         botaoTrocarAnimalDeJaula = new JButton("Trocar");
         botaoListarAlocacoes = new JButton("Listar alocações");
 
-        areaAnimais = criarAreaTexto("Cadastre, liste ou exclua animais. O ID gerado pelo banco sera usado como código.");
+        areaAnimais = criarAreaTexto("Cadastre, liste ou exclua animais. O ID gerado pelo banco será usado como código.");
         areaJaulas = criarAreaTexto("Cadastre, liste ou exclua jaulas. As operações usam o id da jaula.");
         areaAlocacoes = criarAreaTexto(obterMensagemOrientacaoAlocacoes());
 
@@ -221,7 +214,7 @@ public class TelaPrincipal extends JFrame {
         painelFormulario.add(campoNumeracaoJaula);
         painelFormulario.add(new JLabel("Capacidade:"));
         painelFormulario.add(campoCapacidadeJaula);
-        painelFormulario.add(new JLabel("Nivel de segurança:"));
+        painelFormulario.add(new JLabel("Nível de segurança:"));
         painelFormulario.add(comboNivelSegurancaJaula);
         painelFormulario.add(rotuloAtributoJaula);
         painelFormulario.add(campoAtributoEspecificoJaula);
@@ -557,7 +550,7 @@ public class TelaPrincipal extends JFrame {
                     tratarResultadoOperacao(jaulaController.excluirJaula(idJaula.trim()), areaJaulas);
                 }
                 else if (!confirmarAcao("Tem certeza que deseja excluir a jaula de id " + idJaula.trim() + "?")) {
-                    areaJaulas.setText("Exclusao de jaula cancelada.");
+                    areaJaulas.setText("Exclusão de jaula cancelada.");
                 }
                 else {
                     tratarResultadoOperacao(jaulaController.excluirJaula(idJaula.trim()), areaJaulas);
